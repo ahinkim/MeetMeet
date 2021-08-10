@@ -32,6 +32,7 @@ var expressSession = require('express-session');
 // mongoose 모듈 사용
 var mongoose = require('mongoose');
 
+crypto = require('crypto');
 
 // 익스프레스 객체 생성
 var app = express();
@@ -86,33 +87,11 @@ function connectDB() {
 	database.on('error', console.error.bind(console, 'mongoose connection error.'));	
 	database.on('open', function () {
 		console.log('데이터베이스에 연결되었습니다. : ' + databaseUrl);
-		
-
-		// 스키마 정의
-		UserSchema = mongoose.Schema({
-			id: {type:String, required:true, unique:true},
-            password: {type: String, required:true},
-            nickname: {type:String, index:'hashed'},
-            created_at: {type:Date,index:{unique:false},'default':Date.now},
-            updated_at: {type:Date,index:{unique:false},'default':Date.now}
-		});
         
-        //스키마에 static 메소드 추가
-        UserSchema.static('findById', function(id,callback){
-            return this.find({id: id}, callback);
-        });
-        
-        UserSchema.static('findAll', function(callback){
-            return this.find({ }, callback);
-        });
-        
-		console.log('UserSchema 정의함.');
-		
-		// UserModel 모델 정의
-		UserModel = mongoose.model("users", UserSchema);
-		console.log('UserModel 정의함.');
-		
-	});
+        //user 스키마 및 모델 객체 생성
+        createUserSchema();
+	
+    });
     
     // 연결 끊어졌을 때 5초 후 재연결
 	database.on('disconnected', function() {
@@ -120,6 +99,17 @@ function connectDB() {
         setInterval(connectDB, 5000);
     });
 }
+
+//user 스키마 및 모델 객체 생성
+function createUserSchema(){
+
+    //user_schema.js 모듈 불러오기
+    UserSchema = require('./database/user_schema').createSchema(mongoose);
+
+    // UserModel 모델 정의
+    UserModel = mongoose.model("users", UserSchema);
+    console.log('UserModel 정의함.');
+}	
 
 
 
