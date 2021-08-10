@@ -37,8 +37,10 @@ crypto = require('crypto');
 // 익스프레스 객체 생성
 var app = express();
 
+var config = require('./config');
 
-// 기본 속성 설정
+//==== 서버 변수 설정 및  static으로 [public]폴더 설정 ====//
+console.log('config.server_port: %d', config.server_port);
 app.set('port', process.env.PORT || 3000);
 
 // body-parser를 이용해 application/x-www-form-urlencoded 파싱
@@ -122,18 +124,8 @@ function createUserSchema(){
 // 라우터 객체 참조
 var router = express.Router();
 
-// 로그인 라우팅 함수 - 데이터베이스의 정보와 비교
-router.route('/process/login').post(user.login);
-
-// 사용자 추가 라우팅 함수 - 클라이언트에서 보내오는 데이터를 이용해 데이터베이스에 추가
-router.route('/process/adduser').post(user.adduser);
-
-router.route('/process/validate').post(user.validate);
-
-
-// 라우터 객체 등록
-app.use('/', router);
-    
+var route_loader = require('./routes/route_loader');
+route_loader.init(app, router);
 
 // 404 에러 페이지 처리
 var errorHandler = expressErrorHandler({
