@@ -171,7 +171,7 @@ var listuser = function(req, res) {
 	} else {  // 데이터베이스 객체가 초기화되지 않은 경우 실패 응답 전송
 		res.writeHead('200', {'Content-Type':'text/html;charset=utf8'});
 		res.write('<h2>데이터베이스 연결 실패</h2>');
-		res.end();
+		res.end(); 
 	}
 	
 };

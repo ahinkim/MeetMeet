@@ -90,8 +90,11 @@ function connectDB() {
 
 		// 스키마 정의
 		UserSchema = mongoose.Schema({
-			id: String,
-			password: String
+			id: {type:String, required:true, unique:true},
+            password: {type: String, required:true},
+            nickname: {type:String, index:'hashed'},
+            created_at: {type:Date,index:{unique:false},'default':Date.now},
+            updated_at: {type:Date,index:{unique:false},'default':Date.now}
 		});
 		console.log('UserSchema 정의함.');
 		
@@ -160,13 +163,17 @@ router.route('/process/adduser').post(function(req, res) {
 
     var paramId = req.body.id || req.query.id;
     var paramPassword = req.body.password || req.query.password;
-	
+	var paramNickname = req.body.nickname || req.query.nickname;
+    
     console.log('요청 파라미터 : ' + paramId + ', ' + paramPassword );
     
     // 데이터베이스 객체가 초기화된 경우, addUser 함수 호출하여 사용자 추가
 	if (database) {
-		addUser(database, paramId, paramPassword, function(err, addedUser) {
-			if (err) {throw err;}
+		addUser(database, paramId, paramPassword, paramNickname, function(err, addedUser) {
+			if (err) {
+                res.status(400);
+                throw err;
+            }
 			
             // 결과 객체 있으면 성공 응답 전송
 			if (addedUser) {
@@ -202,7 +209,10 @@ router.route('/process/validate').post(function(req, res) {
     // 데이터베이스 객체가 초기화된 경우, addUser 함수 호출하여 사용자 추가
 	if (database) {
         validateUser(database, paramId, function(err, result) {
-			if (err) {throw err;}
+			if (err) { 
+                res.status(400);
+                throw err;
+            }
 			
             // 결과 객체 있으면 성공 응답 전송
 			if (result) {
@@ -256,8 +266,8 @@ var authUser = function(database, id, password, callback) {
 
 
 //사용자를 추가하는 함수
-var addUser = function(database, id, password, callback) {
-	console.log('addUser 호출됨 : ' + id + ', ' + password );
+var addUser = function(database, id, password,nickname, callback) {
+	console.log('addUser 호출됨 : ' + id + ', ' + password + ', '+ nickname );
 	
     UserModel.find({"id":id}, function(err, results) {
 
@@ -267,7 +277,7 @@ var addUser = function(database, id, password, callback) {
     }
 
     // UserModel 인스턴스 생성
-    var user = new UserModel({"id":id, "password":password});
+    var user = new UserModel({"id":id, "password":password, "nickname":nickname});
 
     // save()로 저장 : 저장 성공 시 addedUser 객체가 파라미터로 전달됨
     user.save(function(err, addedUser) {
