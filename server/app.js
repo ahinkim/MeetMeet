@@ -127,12 +127,6 @@ var router = express.Router();
 var route_loader = require('./routes/route_loader');
 route_loader.init(app, router);
 
-// 404 에러 페이지 처리
-var errorHandler = expressErrorHandler({
- static: {
-   '404': './public/404.html'
- }
-});
 
 app.use( expressErrorHandler.httpError(404) );
 app.use( errorHandler );
