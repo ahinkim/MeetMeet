@@ -20,26 +20,12 @@ module.exports = {
 	db_schemas: [
 	    {file:'./user_schema', collection:'users', schemaName:'UserSchema', modelName:'UserModel'}
 	],
-//	initRoutes: function(app) {
-//		console.log('initRoutes() 호출됨.');
-//		
-//		//===== 사용자 관련 라우팅 =====//
-//		
-//		// 로그인 처리 함수 라우팅
-//		app.post('/process/login', user.login);
-//
-//		// 사용자 추가 함수 라우팅
-//		app.post('/process/adduser', user.adduser);
-//
-//		// 사용자 리스트 함수 라우팅
-//		app.post('/process/listuser', user.listuser);
-//
-//		//=======================//
-//		
-//	}
+
     route_info: [
         {file: './user', path: '/process/login', method:'login',type:'post'}
         ,{file: './user', path: '/process/adduser', method:'adduser',type:'post'}
         ,{file: './user', path: '/process/validate', method:'validate',type:'post'}
+        ,{file: './usertoken', path: '/token/verify', method: 'verifyToken', type: 'get'}
+        ,{file: './usertoken', path: '/token/issue', method: 'issueToken', type: 'post'}
     ]
 }

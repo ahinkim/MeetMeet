@@ -13,7 +13,7 @@ var UserModel;
 
 // 데이터베이스 객체, 스키마 객체, 모델 객체를 이 모듈에서 사용할 수 있도록 전달함
 var init = function(db, schema, model) {
-	console.log('init 호출됨.');
+	console.log('user모듈에 있는 init 호출됨.');
 	
 	database = db;
 	UserSchema = schema;
@@ -245,4 +245,5 @@ module.exports.init = init;
 module.exports.login = login;
 module.exports.adduser = adduser;
 module.exports.validate = validate;
+module.exports.authUser = authUser;
 

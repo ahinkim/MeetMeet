@@ -21,7 +21,8 @@ var express = require('express')
 var bodyParser = require('body-parser')
   , cookieParser = require('cookie-parser')
   , static = require('serve-static')
-  , errorHandler = require('errorhandler');
+  , errorHandler = require('errorhandler')
+  , dotenv = require('dotenv'); 
 
 // 에러 핸들러 모듈 사용
 var expressErrorHandler = require('express-error-handler');
@@ -39,6 +40,8 @@ var app = express();
 
 var config = require('./config');
 
+
+dotenv.config();
 //==== 서버 변수 설정 및  static으로 [public]폴더 설정 ====//
 console.log('config.server_port: %d', config.server_port);
 app.set('port', process.env.PORT || 3000);
@@ -103,6 +106,7 @@ function connectDB() {
 }
 
 var user = require('./routes/user');
+var usertoken = require('./routes/usertoken');
 //user 스키마 및 모델 객체 생성
 function createUserSchema(){
 
@@ -115,6 +119,7 @@ function createUserSchema(){
     
     //init 호출
     user.init(database, UserSchema, UserModel);
+    usertoken.init(database, UserSchema, UserModel);
 }	
 
 
