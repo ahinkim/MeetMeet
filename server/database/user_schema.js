@@ -15,9 +15,10 @@ Schema.createSchema = function(mongoose) {
 		UserSchema = mongoose.Schema({
 			id: {type:String, required:true, unique:true},
             password: {type: String, required:true},
-            nickname: {type:String, index:'hashed'},
-            created_at: {type:Date,index:{unique:false},'default':Date.now},
-            updated_at: {type:Date,index:{unique:false},'default':Date.now}
+            nickname: {type: String, index:'hashed'},
+            created_at: {type: Date,index:{unique:false},'default':Date.now},
+            updated_at: {type: Date,index:{unique:false},'default':Date.now},
+            accessToken: {type: String, required: true, index:{unique:false}}
 		});
         
         //스키마에 static 메소드 추가

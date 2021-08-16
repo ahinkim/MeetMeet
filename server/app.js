@@ -81,7 +81,7 @@ var UserModel;
 //데이터베이스에 연결
 function connectDB() {
 	// 데이터베이스 연결 정보
-	var databaseUrl = 'mongodb://localhost:27017/local';
+	var databaseUrl = 'mongodb://localhost:27017/meetmeet';
 	 
 	// 데이터베이스 연결
     console.log('데이터베이스 연결을 시도합니다.');

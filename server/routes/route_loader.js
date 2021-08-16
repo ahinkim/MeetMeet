@@ -35,7 +35,11 @@ function initRoutes(app, router) {
             router.route(curItem.path).get(curModule[curItem.method]);
 		} else if (curItem.type == 'post') {
             router.route(curItem.path).post(curModule[curItem.method]);
-		} else {
+		} else if (curItem.type == 'put') {
+            router.route(curItem.path).put(curModule[curItem.method]);
+		}else if (curItem.type == 'delete') {
+            router.route(curItem.path).delete(curModule[curItem.method]);
+		}else  {
 			router.route(curItem.path).post(curModule[curItem.method]);
 		}
 		

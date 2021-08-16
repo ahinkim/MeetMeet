@@ -179,7 +179,7 @@ var addUser = function(database, id, password,nickname, callback) {
     }
 
     // UserModel 인스턴스 생성
-    var user = new UserModel({"id":id, "password":password, "nickname":nickname});
+    var user = new UserModel({"id":id, "password":password, "nickname":nickname, "accessToken": null});
 
     // save()로 저장 : 저장 성공 시 addedUser 객체가 파라미터로 전달됨
     user.save(function(err, addedUser) {

@@ -5,7 +5,7 @@ var UserModel;
 var authUser = require('./user').authUser;
     
 var jwt = require('jsonwebtoken');
-
+var moment = require('moment');
 var init = function(db, schema, model) {
 	console.log('user token모듈에 있는 init 호출됨.');
 	
@@ -26,6 +26,7 @@ var issueToken = function(req,res){
             // 조회된 레코드가 있으면 성공 응답 전송
             if (docs) {
                 console.dir(docs);
+                
                 var nickname = docs.nickname;
                 var accessToken = jwt.sign({paramId,nickname}, 
                     process.env.JWT_SECRET, {
@@ -37,13 +38,20 @@ var issueToken = function(req,res){
                     expiresIn: '14d', // 2주
                     issuer: 'meetmeetserver',
                 });
+                //expiration time도 저장하기
+                //accessToken 데이터베이스에 저장
+                UserModel.update({ id: paramId }, {accessToken: accessToken, updated_at: moment()},(err, output) => {
+                if(err) {console.log('데이터베이스 실패'); console.log(output);}
+
+                if(!output.n) console.log("해당 아이디 찾기 실패");
+                })
                 return res.json({
                   code: 200,
                   message: '토큰이 발급되었습니다',
                   accessToken,
                   refreshToken
                 });
-
+                
             } else {  // 조회된 레코드가 없는 경우 실패 응답 전송
                 return res.status(401).json({
                     code: 401,
