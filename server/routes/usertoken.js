@@ -69,9 +69,9 @@ var issueToken = function(req,res){
     }
 }
 
-//access 토큰 요청
+//access token 만료되었을 때 refresh token 유효성 확인하고 재발급해주는 경로
 //사용자가 access, refresh token 주면 refresh토큰이 유효한 토큰일 경우 access token 발급
-var verifyToken = function(req,res){
+var reissuanceToken = function(req,res){
     //나중에 사용자 access token 보내면 그 token new token으로 바꾼 후 테이블에 갱신하는 코드 만들어야 함.
     console.log('usertoken 모듈 안에 있는 verifyToken 호출됨.');
       try {
@@ -88,7 +88,7 @@ var verifyToken = function(req,res){
             });
         return res.status(200).json({
             code: 200,
-            message: '새로운 access 토큰이 발급 되었습니다.',
+            message: '새로운 access 토큰이 재발급 되었습니다.',
             newAccessToken
         });
       } catch (error) {
@@ -104,6 +104,30 @@ var verifyToken = function(req,res){
         });
       }
 }
+
+//accesstoken 어떤 상태인지 인증해주는 경로
+var verifyAccessToken = function(req, res){
+    console.log('usertoken 모듈 안에 있는 verifyAccessToken 호출됨.');
+      try {
+        req.decodedAccess = jwt.verify(req.headers.access, process.env.JWT_SECRET);
+        return res.status(200).json({
+            code: 200,
+            message: '토큰이 인증되었습니다.',
+          });
+      } catch (error) {
+        if (error.name === 'TokenExpiredError') { // 유효기간 초과
+          return res.status(419).json({
+            code: 419,
+            message: '토큰이 만료되었습니다',
+          });
+        }
+        return res.status(401).json({
+          code: 401,
+          message: '유효하지 않은 토큰입니다',
+        });
+      }
+}
+
 //var verifyToken = function(req,res){
 //    console.log('usertoken 모듈 안에 있는 verifyToken 호출됨.');
 //      try {
@@ -166,6 +190,7 @@ var verifyToken = function(req,res){
 
 
 
-module.exports.verifyToken = verifyToken;
+module.exports.reissuanceToken = reissuanceToken;
 module.exports.init = init;
-module.exports.issueToken = issueToken
+module.exports.issueToken = issueToken;
+module.exports.verifyAccessToken = verifyAccessToken;
