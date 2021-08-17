@@ -3,6 +3,7 @@ var database;
 var UserSchema;
 var UserModel;
 var authUser = require('./user').authUser;
+var findByAccess = require('./user').findByAccess;
     
 var jwt = require('jsonwebtoken');
 var moment = require('moment');
@@ -22,12 +23,13 @@ var issueToken = function(req,res){
     try {
         authUser(database, paramId, paramPassword, function(err, docs) {
             if (err) {throw err;}
-
+            
             // 조회된 레코드가 있으면 성공 응답 전송
             if (docs) {
-                console.dir(docs);
                 
-                var nickname = docs.nickname;
+                var nickname = docs[0]._doc.nickname;
+                console.log('nickname: ', nickname);
+                
                 var accessToken = jwt.sign({paramId,nickname}, 
                     process.env.JWT_SECRET, {
                     expiresIn: '1m', // 1분
@@ -73,31 +75,51 @@ var issueToken = function(req,res){
 //사용자가 access, refresh token 주면 refresh토큰이 유효한 토큰일 경우 access token 발급
 var reissuanceToken = function(req,res){
     //나중에 사용자 access token 보내면 그 token new token으로 바꾼 후 테이블에 갱신하는 코드 만들어야 함.
-    console.log('usertoken 모듈 안에 있는 verifyToken 호출됨.');
+    console.log('usertoken 모듈 안에 있는 reissuanceToken 호출됨.');
       try {
         req.decodedRefresh = jwt.verify(req.headers.refresh, process.env.JWT_SECRET);
-        
-        //아래 나중에 바꾸기: accesstoken 테이블에서 찾아서 일치하는 아래 임시 id 대신 꺼내서 넣어야 한다
-        var paramId = "test1"; // 임시 id
-        var nickname = UserModel.findOne({paramId}).nickname;
+        var access = req.headers.access;
           
-        var newAccessToken = jwt.sign({paramId,nickname}, 
+        findByAccess(database, access, function(err, docs){
+            if (err) {throw err;}
+            
+            if(docs){
+                var paramId = docs[0]._doc.id;
+                var nickname = docs[0]._doc.nickname;
+
+                console.log('paramId: ',paramId, ',nickname: ',nickname); 
+
+                var newAccessToken = jwt.sign({paramId,nickname}, 
                 process.env.JWT_SECRET, {
                 expiresIn: '1m', // 1분
                 issuer: 'meetmeetserver',
+                });
+                
+                UserModel.update({ id: paramId }, {accessToken: newAccessToken, updated_at: moment()},(err, output) => {
+                if(err) {console.log('데이터베이스 실패'); console.log(output);}
+
+                if(!output.n) console.log("해당 아이디 찾기 실패");
+                })
+                
+                return res.status(200).json({
+                code: 200,
+                message: '새로운 access 토큰이 재발급 되었습니다.',
+                newAccessToken
             });
-        return res.status(200).json({
-            code: 200,
-            message: '새로운 access 토큰이 재발급 되었습니다.',
-            newAccessToken
-        });
-      } catch (error) {
-        if (error.name === 'TokenExpiredError') { // 유효기간 초과
-          return res.status(419).json({
-            code: 419,
-            message: 'refresh 토큰이 만료되었습니다',
-          });
-        }
+            } else{
+                console.log('access token에 해당되는 user찾기 실패.');
+                return res.status(402).json({
+                code: 402,
+                message: '유효하지 않는 access 토큰 입니다.',
+            });
+                }
+        })
+        }catch (error) {
+            if (error.name === 'TokenExpiredError') { // 유효기간 초과
+              return res.status(419).json({
+                code: 419,
+                message: 'refresh 토큰이 만료되었습니다',
+              })};
         return res.status(401).json({
           code: 401,
           message: '유효하지 않은 refresh토큰입니다',
@@ -105,25 +127,27 @@ var reissuanceToken = function(req,res){
       }
 }
 
+
 //accesstoken 어떤 상태인지 인증해주는 경로
 var verifyAccessToken = function(req, res){
     console.log('usertoken 모듈 안에 있는 verifyAccessToken 호출됨.');
       try {
         req.decodedAccess = jwt.verify(req.headers.access, process.env.JWT_SECRET);
+   
         return res.status(200).json({
             code: 200,
-            message: '토큰이 인증되었습니다.',
+            message: 'access 토큰이 인증되었습니다.',
           });
       } catch (error) {
         if (error.name === 'TokenExpiredError') { // 유효기간 초과
           return res.status(419).json({
             code: 419,
-            message: '토큰이 만료되었습니다',
+            message: 'access 토큰이 만료되었습니다',
           });
         }
         return res.status(401).json({
           code: 401,
-          message: '유효하지 않은 토큰입니다',
+          message: '유효하지 않은 access 토큰입니다',
         });
       }
 }

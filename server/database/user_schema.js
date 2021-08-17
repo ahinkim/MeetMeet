@@ -18,7 +18,7 @@ Schema.createSchema = function(mongoose) {
             nickname: {type: String, index:'hashed'},
             created_at: {type: Date,index:{unique:false},'default':Date.now},
             updated_at: {type: Date,index:{unique:false},'default':Date.now},
-            accessToken: {type: String, required: true, index:{unique:false}}
+            accessToken: {type: String, index:{unique:false}}
 		});
         
         //스키마에 static 메소드 추가

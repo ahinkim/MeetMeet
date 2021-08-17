@@ -39,7 +39,6 @@ var login = function(req, res) {
 				console.dir(docs);
 
                 // 조회 결과에서 사용자 이름 확인
-				//var result = new Boolean(true);
 				res.status(200).json({ success: true });
 				res.end();
 			
@@ -221,6 +220,29 @@ var validateUser = function(database, id, callback) {
     })
 };
 
+//access token이 맞는 user 반환
+var findByAccess = function(database, access, callback) {
+	console.log('findByAccess 호출됨 : ' + access );
+	
+    UserModel.find({"accessToken": access}, function(err, results) {
+
+        if (err) {  // 에러 발생 시 콜백 함수를 호출하면서 에러 객체 전달
+            callback(err, null);
+            return;
+        }
+
+        if (results.length > 0) { 
+            // 조회한 레코드가 있는 경우 콜백 함수를 호출하면서 조회 결과 전달
+                console.log('해당 user 찾음.');
+                callback(null, results);
+                return;
+
+            } else{
+                console.log('해당되는 user 없음.');
+                callback(null, null);
+            }
+    })
+};
 
 ////필요한 경우 req.app.get('database')로 참조 가능 : 이 파일에서는 사용하지 않음
 //var checkDatabase = function(req) {
@@ -246,4 +268,5 @@ module.exports.login = login;
 module.exports.adduser = adduser;
 module.exports.validate = validate;
 module.exports.authUser = authUser;
+module.exports.findByAccess = findByAccess;
 
