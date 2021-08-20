@@ -22,7 +22,8 @@ var bodyParser = require('body-parser')
   , cookieParser = require('cookie-parser')
   , static = require('serve-static')
   , errorHandler = require('errorhandler')
-  , dotenv = require('dotenv'); 
+  , dotenv = require('dotenv')
+  , morgan = require('morgan');
 
 // 에러 핸들러 모듈 사용
 var expressErrorHandler = require('express-error-handler');
@@ -40,6 +41,7 @@ var app = express();
 
 var config = require('./config');
 
+app.use(morgan('dev'));
 
 dotenv.config();
 //==== 서버 변수 설정 및  static으로 [public]폴더 설정 ====//
@@ -47,7 +49,7 @@ console.log('config.server_port: %d', config.server_port);
 app.set('port', process.env.PORT || 3000);
 
 // body-parser를 이용해 application/x-www-form-urlencoded 파싱
-app.use(bodyParser.urlencoded({ extended: false }))
+app.use(bodyParser.urlencoded({ extended: true }))
 
 // body-parser를 이용해 application/json 파싱
 app.use(bodyParser.json())
@@ -78,6 +80,9 @@ var UserSchema;
 // 데이터베이스 모델 객체를 위한 변수 선언
 var UserModel;
 
+var DiarySchema;
+
+var DiaryModel;
 //데이터베이스에 연결
 function connectDB() {
 	// 데이터베이스 연결 정보
@@ -107,6 +112,9 @@ function connectDB() {
 
 var user = require('./routes/user');
 var usertoken = require('./routes/usertoken');
+var diary = require('./routes/diary');
+var diary_schema = require('./database/diary_schema');
+
 //user 스키마 및 모델 객체 생성
 function createUserSchema(){
 
@@ -117,9 +125,14 @@ function createUserSchema(){
     UserModel = mongoose.model("users", UserSchema);
     console.log('UserModel 정의함.');
     
+    diary_schema.init(UserModel);
+    DiarySchema = require('./database/diary_schema').createSchema(mongoose);
+    DiaryModel = mongoose.model("diaries", DiarySchema);
+    console.log('DiaryModel 정의함.');
     //init 호출
     user.init(database, UserSchema, UserModel);
     usertoken.init(database, UserSchema, UserModel);
+    diary.init(database, DiarySchema, DiaryModel, UserModel);
 }	
 
 
@@ -132,6 +145,9 @@ var router = express.Router();
 var route_loader = require('./routes/route_loader');
 route_loader.init(app, router);
 
+
+//var database = require('./database/database');
+//database.init(app,config);
 
 app.use( expressErrorHandler.httpError(404) );
 app.use( errorHandler );

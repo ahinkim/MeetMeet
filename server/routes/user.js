@@ -169,7 +169,7 @@ var authUser = function(database, id, password, callback) {
 //사용자를 추가하는 함수
 var addUser = function(database, id, password,nickname, callback) {
 	console.log('addUser 호출됨 : ' + id + ', ' + password + ', '+ nickname );
-	
+
     UserModel.find({"id":id}, function(err, results) {
 
     if (err) {  // 에러 발생 시 콜백 함수를 호출하면서 에러 객체 전달
@@ -179,7 +179,7 @@ var addUser = function(database, id, password,nickname, callback) {
 
     // UserModel 인스턴스 생성
     var user = new UserModel({"id":id, "password":password, "nickname":nickname, "accessToken": null});
-
+   
     // save()로 저장 : 저장 성공 시 addedUser 객체가 파라미터로 전달됨
     user.save(function(err, addedUser) {
     if (err) {

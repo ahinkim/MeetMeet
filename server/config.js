@@ -12,13 +12,14 @@
  */
 
 // 사용자 관련 모듈 불러오기
-var user = require('./routes/user');
+//var user = require('./routes/user');
 
 module.exports = {
 	server_port: 3000,
 	db_url: 'mongodb://localhost:27017/meetmeet',
 	db_schemas: [
 	    {file:'./user_schema', collection:'users', schemaName:'UserSchema', modelName:'UserModel'}
+        ,{file:'./diary_schema', collection:'diaries', schemaName:'DiarySchema', modelName:'DiaryModel'}
 	],
 
     route_info: [
@@ -28,5 +29,7 @@ module.exports = {
         ,{file: './usertoken', path: '/token/reissuance', method: 'reissuanceToken', type: 'get'}
         ,{file: './usertoken', path: '/token/issue', method: 'issueToken', type: 'post'}
         ,{file: './usertoken', path: '/token/access', method: 'verifyAccessToken', type: 'get'}
+        ,{file: './diary', path: '/diary', method: 'postDiary', type: 'post'}
+        ,{file: './diary', path: '/diary', method: 'putDiary', type: 'put'}
     ]
 }

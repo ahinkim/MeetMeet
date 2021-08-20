@@ -32,7 +32,7 @@ var issueToken = function(req,res){
                 
                 var accessToken = jwt.sign({paramId,nickname}, 
                     process.env.JWT_SECRET, {
-                    expiresIn: '1m', // 1분
+                    expiresIn: '1h', // 1분
                     issuer: 'meetmeetserver',
                 });
                 var refreshToken = jwt.sign({}, 
@@ -91,7 +91,7 @@ var reissuanceToken = function(req,res){
 
                 var newAccessToken = jwt.sign({paramId,nickname}, 
                 process.env.JWT_SECRET, {
-                expiresIn: '1m', // 1분
+                expiresIn: '1h', // 1분
                 issuer: 'meetmeetserver',
                 });
                 
