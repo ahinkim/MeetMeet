@@ -31,5 +31,6 @@ module.exports = {
         ,{file: './usertoken', path: '/token/access', method: 'verifyAccessToken', type: 'get'}
         ,{file: './diary', path: '/diary', method: 'postDiary', type: 'post'}
         ,{file: './diary', path: '/diary', method: 'putDiary', type: 'put'}
+        ,{file: './diary', path: '/diary', method: 'deleteDiary', type: 'delete'}
     ]
 }

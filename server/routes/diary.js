@@ -132,6 +132,48 @@ var putDiary = function(req, res) {
 	
 }
 
+//다이어리 삭제 요청
+var deleteDiary = function(req, res) {
+	console.log('diary모듈 안에 있는 deleteDiary 호출됨.');
+    
+    var diary_id = req.query.id;
+    
+    console.log('요청 파라미터 : '  + diary_id);
+    
+    // 데이터베이스 객체가 초기화된 경우, addUser 함수 호출하여 사용자 추가
+	if (database) {
+           deletediary(database, diary_id, function(err, results) {
+            if(err){ 
+                res.status(500).json({
+                code: 500,
+                message: '서버 에러.',
+                });
+                throw err;         
+            }
+			
+            if(results){
+                res.status(200).json({
+                code: 200,
+                message: '다이어리 삭제 완료',
+                });
+            }else{
+                res.status(402).json({
+                code: 402,
+                message: 'diary_id에 해당하는 diary가 없습니다.',
+                });
+                return;
+            }
+		});
+        
+	} else {  // 데이터베이스 객체가 초기화되지 않은 경우 실패 응답 전송
+		//res.writeHead('200', {'Content-Type':'text/html;charset=utf8'});
+		res.status(500);
+        res.write('데이터베이스 연결 실패');
+		res.end();
+	}
+	
+}
+
 //다이어리를 추가하는 함수
 var addDiary = function(database, objectId, contents, callback) {
 	console.log('addDiary 호출됨 : ' + objectId + ', ' + contents );
@@ -179,7 +221,30 @@ var modify = function(database, id, contents, callback) {
     })
 };
 
+//다이어리를 삭제하는 함수
+var deletediary = function(database, diaryId, callback) {
+	console.log('deletediary 호출됨 : '+ diaryId );
+
+    DiaryModel.remove({"_id": diaryId}, (err, output) => { //updatedat추가하기
+        if (err) {  // 에러 발생 시 콜백 함수를 호출하면서 에러 객체 전달
+            callback(err, null);
+            return;
+        }
+        console.dir(output);
+        if(output.result.n){ 
+            console.log("해당 다이어리 아이디 찾기 성공");
+            callback(null,true);
+        }
+        else{
+            console.log("해당 다이어리 아이디 찾기 실패");
+            callback(null,null);
+        }
+        
+    });
+};
+
 
 module.exports.init = init;
 module.exports.postDiary = postDiary;
 module.exports.putDiary = putDiary;
+module.exports.deleteDiary = deleteDiary;
