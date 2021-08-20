@@ -125,7 +125,7 @@ function createUserSchema(){
     UserModel = mongoose.model("users", UserSchema);
     console.log('UserModel 정의함.');
     
-    diary_schema.init(UserModel);
+//    diary_schema.init(UserModel);
     DiarySchema = require('./database/diary_schema').createSchema(mongoose);
     DiaryModel = mongoose.model("diaries", DiarySchema);
     console.log('DiaryModel 정의함.');

@@ -12,11 +12,11 @@ var Schema = {};
 
 //var { Types: { ObjectId } } = Schema;
 
-var init = function(model) {
-	console.log('diary_schema 모듈에 있는 init 호출됨.');
-
-	UserModel = model;
-}
+//var init = function(model) {
+//	console.log('diary_schema 모듈에 있는 init 호출됨.');
+//
+//	UserModel = model;
+//}
 
 Schema.createSchema = function(mongoose) {
 //	autoIncrement.initialize(mongoose.connection);
@@ -47,4 +47,4 @@ Schema.createSchema = function(mongoose) {
 
 // module.exports에 UserSchema 객체 직접 할당
 module.exports = Schema;
-module.exports.init = init;
+//module.exports.init = init;

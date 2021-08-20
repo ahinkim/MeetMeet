@@ -32,5 +32,6 @@ module.exports = {
         ,{file: './diary', path: '/diary', method: 'postDiary', type: 'post'}
         ,{file: './diary', path: '/diary', method: 'putDiary', type: 'put'}
         ,{file: './diary', path: '/diary', method: 'deleteDiary', type: 'delete'}
+        ,{file: './diary', path: '/diary', method: 'getDiaryByDate', type: 'get'}
     ]
 }

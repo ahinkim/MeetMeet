@@ -174,6 +174,77 @@ var deleteDiary = function(req, res) {
 	
 }
 
+//해당 달, 연도 별 다이어리 리스트 요청
+var getDiaryByDate = function(req, res) {
+	console.log('diary모듈 안에 있는 getDiaryByDate 호출됨.');
+    
+    var year = Number(req.body.year) || Number(req.query.year);
+    var month = Number(req.body.month) || Number(req.query.month);
+    var access = req.headers.access;
+   // var objectId;
+    
+    console.log('요청 파라미터 : ' + year + ', ' + month + ',' + access);
+    
+    // 데이터베이스 객체가 초기화된 경우, addUser 함수 호출하여 사용자 추가
+	if (database) {
+           findByAccess(database,access, function(err, results) {
+            if(err){ 
+                res.status(500).json({
+                code: 500,
+                message: '서버 에러.',
+                });
+                throw err;         
+            }
+			
+            if( results != null && results.length>0){
+                var objectId = results[0]._doc._id; // 사용자 objectId
+                diaryByDate(database, objectId, year, month, function(err, results) {
+                    if (err) {
+                        res.status(500).json({
+                            code: 500,
+                            message: '서버 에러.',
+                        });
+                        throw err;
+                    }
+
+                    // 결과 객체 있으면 성공 응답 전송
+                    if (results) {
+
+                        res.status(200).json({
+                            code: 200,
+                            diaries: results
+                        });
+
+                    } else {  // 결과 객체가 없으면 실패 응답 전송
+
+                            res.status(401).json({
+                            code: 401,
+                            message: '해당 날짜에 해당하는 다이어리 없음.',
+                        });
+                    }
+		      });
+//                        var result = DiaryModel.populate(diary, { path: 'writer' });
+//    
+//                res.status(200).json(result);
+            }else{
+                res.status(402).json({
+                    code: 402,
+                    message: 'accessToken에 해당하는 사용자가 없습니다.',
+                });
+                return;
+            }
+		});
+        
+	} else {  // 데이터베이스 객체가 초기화되지 않은 경우 실패 응답 전송
+		//res.writeHead('200', {'Content-Type':'text/html;charset=utf8'});
+		res.status(500);
+        res.write('데이터베이스 연결 실패');
+		res.end();
+	}
+	
+}
+
+
 //다이어리를 추가하는 함수
 var addDiary = function(database, objectId, contents, callback) {
 	console.log('addDiary 호출됨 : ' + objectId + ', ' + contents );
@@ -243,8 +314,42 @@ var deletediary = function(database, diaryId, callback) {
     });
 };
 
-
+//다이어리를 날짜별로 조회하는 함수
+var diaryByDate = function(database, objectId, year, month, callback) {
+	console.log('diaryByDate 호출됨 : '+ objectId + ', '+ year + ', '+month);
+    
+//    var start = new Date('2021/08/20/00:00:00');
+//    var end = new Date('2021/08/20/23:59:59');
+//    var start = new Date(2021,7);
+//    var end = new Date(2021,7);
+    //var end = new Date(2021, 8, 29);
+    //"created_At": {$gte: start, $lt: end}}
+    DiaryModel.find({"writer": objectId, 
+        $expr: {
+            $and: [
+                    { $eq: [{ $month: "$created_At" }, month] },
+                    { $eq: [{ $year: "$created_At" }, year] }]
+          }
+    }, (err, output) => { //updatedat추가하기
+        if (err) {  // 에러 발생 시 콜백 함수를 호출하면서 에러 객체 전달
+            callback(err, null);
+            return;
+        }
+        console.dir(output);
+        if(output.length>0){ 
+            console.log("해당 날짜 다이어리 찾기 성공");
+            callback(null,output);
+        }
+        else{
+            console.log("해당 날짜 다이어리 찾기 실패");
+            callback(null,null);
+        }
+        
+    });
+};            
+            
 module.exports.init = init;
 module.exports.postDiary = postDiary;
 module.exports.putDiary = putDiary;
 module.exports.deleteDiary = deleteDiary;
+module.exports.getDiaryByDate = getDiaryByDate;
