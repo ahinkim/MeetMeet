@@ -6,7 +6,7 @@
  */
 
 var crypto = require('crypto');
-
+var mongoose = require('mongoose');
 var Schema = {};
 
 Schema.createSchema = function(mongoose) {
@@ -32,10 +32,9 @@ Schema.createSchema = function(mongoose) {
         
 		console.log('UserSchema 정의함.');
 	
-    
+//    module.exports = mongoose.model('users', UserSchema);
 	return UserSchema;
 };
 
 // module.exports에 UserSchema 객체 직접 할당
 module.exports = Schema;
-
