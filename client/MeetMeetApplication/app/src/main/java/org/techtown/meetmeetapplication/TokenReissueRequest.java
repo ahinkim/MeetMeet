@@ -12,16 +12,16 @@ public class TokenReissueRequest extends StringRequest {
 
     //서버 URL 설정
     //access,refresh token 재발급 요청 /token/reissuance
-    final static private String URL = "http://0f1c92958392.ngrok.io/token/reissuance";
+    final static private String URL = "http://80de-182-222-218-49.ngrok.io/token/reissuance";
     private final Map<String, String> headers;
 
-    public TokenReissueRequest(Map<String, String> headers, Response.Listener<String> listener) {
-        super(Method.GET, URL, listener, null);
+    public TokenReissueRequest(Map<String, String> headers, Response.Listener<String> listener, Response.ErrorListener errorListener) {
+        super(Method.GET, URL, listener, errorListener);
         this.headers=headers;
     }
 
     @Override
-    public Map<String, String>getHeaders() throws AuthFailureError {
-        return headers != null ? headers : super.getHeaders();
+    public Map<String, String>getHeaders() {//throws AuthFailureError
+        return headers;
     }
 }
