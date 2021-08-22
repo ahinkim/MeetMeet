@@ -113,6 +113,7 @@ function connectDB() {
 var user = require('./routes/user');
 var usertoken = require('./routes/usertoken');
 var diary = require('./routes/diary');
+var mypage = require('./routes/mypage');
 var diary_schema = require('./database/diary_schema');
 
 //user 스키마 및 모델 객체 생성
@@ -133,6 +134,7 @@ function createUserSchema(){
     user.init(database, UserSchema, UserModel);
     usertoken.init(database, UserSchema, UserModel);
     diary.init(database, DiarySchema, DiaryModel, UserModel);
+    mypage.init(database, DiarySchema, DiaryModel, UserModel);
 }	
 
 

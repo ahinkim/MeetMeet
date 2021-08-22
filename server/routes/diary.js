@@ -285,6 +285,7 @@ var modify = function(database, id, contents, callback) {
         if(!output.n){ 
             console.log("해당 다이어리 아이디 찾기 실패");
             callback(null,null);
+            return;
         }
         
         callback(null,true);
