@@ -25,6 +25,7 @@ public class MainActivity extends AppCompatActivity {
     DatePickerDialog.OnDateSetListener monthlistener = new DatePickerDialog.OnDateSetListener() {
         @Override
         public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth){
+            //선택한 월로 버튼의 글씨 바뀜
             if(monthOfYear==1){month_button.setText("JANUARY");}
             else if(monthOfYear==2){month_button.setText("FEBRUARY");}
             else if(monthOfYear==3){month_button.setText("MARCH");}
@@ -42,6 +43,7 @@ public class MainActivity extends AppCompatActivity {
     DatePickerDialog.OnDateSetListener yearlistener=new DatePickerDialog.OnDateSetListener() {
         @Override
         public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
+            //선택한 연도로 버튼 바뀜
             year_button.setText(""+year);
         }
     };
@@ -53,6 +55,7 @@ public class MainActivity extends AppCompatActivity {
         year_button=findViewById(R.id.year_button);
         write_button=findViewById(R.id.write_button);
 
+        //월 선택 버튼
         month_button.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view) {
@@ -61,6 +64,7 @@ public class MainActivity extends AppCompatActivity {
                 monthPickerDialog.show(getSupportFragmentManager(), "YearMonthPickerTest");
             }
         });
+        //연도 선택 버튼
         year_button.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
@@ -69,6 +73,7 @@ public class MainActivity extends AppCompatActivity {
                 yearPickerDialog.show(getSupportFragmentManager(), "YearMonthPickerTest");
             }
         });
+        //일기 쓰기 버튼
         write_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

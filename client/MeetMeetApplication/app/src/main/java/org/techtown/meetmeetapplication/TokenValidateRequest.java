@@ -10,16 +10,16 @@ public class TokenValidateRequest extends StringRequest {
 
     //서버 URL 설정
     //access token 재발급 요청 /token/access
-    final static private String URL = "http://0f1c92958392.ngrok.io/token/access";
+    final static private String URL = "http://80de-182-222-218-49.ngrok.io/token/access";
     private final Map<String, String> headers;
 
-    public TokenValidateRequest(Map<String, String> headers, Response.Listener<String> listener) {
-        super(Method.GET, URL, listener, null);
+    public TokenValidateRequest(Map<String, String> headers, Response.Listener<String> listener, Response.ErrorListener errorListener) {
+        super(Method.GET, URL, listener, errorListener);
         this.headers=headers;
     }
 
     @Override
-    public Map<String, String>getHeaders() throws AuthFailureError {
-        return headers!=null?headers:super.getHeaders();
+    public Map<String, String>getHeaders(){//throws AuthFailureError
+        return headers;
     }
 }
