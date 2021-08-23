@@ -1,15 +1,6 @@
-/*
- * 사용자 정보 처리 모듈
- * 데이터베이스 관련 객체들을 init() 메소드로 설정
- *
- * @date 2016-11-10
- * @author Mike
- */
-
 var database;
 var UserSchema;
 var UserModel;
-
 
 // 데이터베이스 객체, 스키마 객체, 모델 객체를 이 모듈에서 사용할 수 있도록 전달함
 var init = function(db, schema, model) {
@@ -128,6 +119,95 @@ var validate = function(req, res) {
         res.write('데이터베이스 연결 실패');
 		res.end();
 	}
+	
+}
+
+var logout = function(req,res){
+    console.log('user 모듈 안에 있는 logout 호출됨.');
+    
+    var access = req.headers.access;
+    
+    UserModel.update({"accessToken": access},{"accessToken": null}, function(err,results){
+        if(err){    //데이터베이스 에러(서버 에러 처리)
+            res.status(500);
+            throw err;
+        }
+        
+        if(results.n){
+            res.status(200).json({
+                code: 200,
+                message:'logout 처리 되었습니다.'
+            });
+        } else{
+            res.status(401).json({
+                code: 401,
+                message: '유효하지 않은 access 토큰입니다.'
+            });
+        }
+    });
+}
+
+//회원탈퇴 함수
+var deleteUser = function(req, res) {
+	console.log('diary모듈 안에 있는 deleteUser 호출됨.');
+    
+    var accessToken = req.headers.access;
+    
+    console.log('요청 파라미터 : '  + accessToken);
+    
+    // 데이터베이스 객체가 초기화된 경우, addUser 함수 호출하여 사용자 추가
+	if (database) {
+           findByAccess(database, accessToken, function(err, results) {
+                if(err){ 
+                    res.status(500).json({
+                    code: 500,
+                    message: '서버 에러.',
+                    });
+                    throw err;         
+                }
+
+                if(results!=null && results.length>0){ //results != null && results.length>0
+
+                    var objectId = results[0]._doc._id;
+
+                    secession(database, objectId, function(err, results) {
+                        if(err){ 
+                            res.status(500).json({
+                            code: 500,
+                            message: '서버 에러.',
+                            });
+                            throw err;         
+                        }
+                        
+                        if( results ){
+                            res.status(200).json({
+                                code: 200,
+                                message: '회원 탈퇴 성공'
+                            });
+
+                        }else{
+                            res.status(402).json({
+                                code: 402,
+                                message: 'accessToken에 해당하는 사용자가 없습니다.',
+                            });
+                            return;
+                        }
+                    });
+                }else{
+                    res.status(402).json({
+                    code: 402,
+                    message: 'accessToken에 해당하는 사용자가 없습니다.',
+                    });
+                    return;
+                }
+		});
+        
+    }else {  // 데이터베이스 객체가 초기화되지 않은 경우 실패 응답 전송
+            //res.writeHead('200', {'Content-Type':'text/html;charset=utf8'});
+            res.status(500);
+            res.write('데이터베이스 연결 실패');
+            res.end();
+        }
 	
 }
 
@@ -258,15 +338,45 @@ var findByAccess = function(database, access, callback) {
 //}
 
 
+//회원탈퇴 함수
+var secession = function(database, objectId, callback) {
+	console.log('secession 호출됨 : '+ objectId );
 
+    UserModel.remove({"_id": objectId}, (err, output) => { //updatedat추가하기
+        if (err) {  // 에러 발생 시 콜백 함수를 호출하면서 에러 객체 전달
+            callback(err, null);
+            return;
+        }
+        if(output.result.n){ 
+            var deleteDiaryById = require('./diary').deleteDiaryById;
+            console.log("해당 사용자 토큰 찾기 성공");
+            deleteDiaryById(database,objectId, function(err, results){
+                if(err){
+                    callback(err,null);
+                }else{
+                    callback(null,true);
+                }
+                
+            });  
+        }
+        else{
+            console.log("해당 사용자 토큰 찾기 실패");
+            callback(null,null);
+        }
+        
+    });
+
+};
 
 
 // module.exports 객체에 속성으로 추가
 
 module.exports.init = init;
 module.exports.login = login;
+module.exports.logout = logout;
 module.exports.adduser = adduser;
 module.exports.validate = validate;
 module.exports.authUser = authUser;
 module.exports.findByAccess = findByAccess;
+module.exports.deleteUser = deleteUser;
 

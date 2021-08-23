@@ -31,52 +31,52 @@ var postDiary = function(req, res) {
     // 데이터베이스 객체가 초기화된 경우, addUser 함수 호출하여 사용자 추가
 	if (database) {
            findByAccess(database,access, function(err, results) {
-            if(err){ 
-                res.status(500).json({
-                code: 500,
-                message: '서버 에러.',
-                });
-                throw err;         
-            }
-			
-            if( results != null && results.length>0){
-                var objectId = results[0]._doc._id;
-                addDiary(database, objectId, diary, function(err, diaryId) {
-                    if (err) {
-                        res.status(500).json({
-                            code: 500,
-                            message: '서버 에러.',
-                        });
-                        throw err;
-                    }
+                if(err){ 
+                    res.status(500).json({
+                    code: 500,
+                    message: '서버 에러.',
+                    });
+                    throw err;         
+                }
 
-                    // 결과 객체 있으면 성공 응답 전송
-                    if (diaryId) {
-
-                        res.status(200).json({
-                            code: 200,
-                            diary_id: diaryId,
-                            message: '다이어리 등록 성공.',
-                        });
-
-                    } else {  // 결과 객체가 없으면 실패 응답 전송
-
+                if( results != null && results.length>0){
+                    var objectId = results[0]._doc._id;
+                    addDiary(database, objectId, diary, function(err, diaryId) {
+                        if (err) {
                             res.status(500).json({
-                            code: 500,
-                            message: '다이어리 등록 실패.',
-                        });
-                    }
-		      });
-//                        var result = DiaryModel.populate(diary, { path: 'writer' });
-//    
-//                res.status(200).json(result);
-            }else{
-                res.status(402).json({
-                    code: 402,
-                    message: 'accessToken에 해당하는 사용자가 없습니다.',
-                });
-                return;
-            }
+                                code: 500,
+                                message: '서버 에러.',
+                            });
+                            throw err;
+                        }
+
+                        // 결과 객체 있으면 성공 응답 전송
+                        if (diaryId) {
+
+                            res.status(200).json({
+                                code: 200,
+                                diary_id: diaryId,
+                                message: '다이어리 등록 성공.',
+                            });
+
+                        } else {  // 결과 객체가 없으면 실패 응답 전송
+
+                                res.status(500).json({
+                                code: 500,
+                                message: '다이어리 등록 실패.',
+                            });
+                        }
+                  });
+    //                        var result = DiaryModel.populate(diary, { path: 'writer' });
+    //    
+    //                res.status(200).json(result);
+                }else{
+                    res.status(402).json({
+                        code: 402,
+                        message: 'accessToken에 해당하는 사용자가 없습니다.',
+                    });
+                    return;
+                }
 		});
         
 	} else {  // 데이터베이스 객체가 초기화되지 않은 경우 실패 응답 전송
@@ -319,12 +319,6 @@ var deletediary = function(database, diaryId, callback) {
 var diaryByDate = function(database, objectId, year, month, callback) {
 	console.log('diaryByDate 호출됨 : '+ objectId + ', '+ year + ', '+month);
     
-//    var start = new Date('2021/08/20/00:00:00');
-//    var end = new Date('2021/08/20/23:59:59');
-//    var start = new Date(2021,7);
-//    var end = new Date(2021,7);
-    //var end = new Date(2021, 8, 29);
-    //"created_At": {$gte: start, $lt: end}}
     DiaryModel.find({"writer": objectId, 
         $expr: {
             $and: [
@@ -348,9 +342,32 @@ var diaryByDate = function(database, objectId, year, month, callback) {
         
     });
 };            
+
+//사용자에 해당하는 다이어리를 삭제하는 함수
+var deleteDiaryById = function(database, objectId, callback) {
+	console.log('deleteDiaryById 호출됨 : '+ objectId );
+
+    DiaryModel.remove({"writer": objectId}, (err, output) => { //updatedat추가하기
+        if (err) {  // 에러 발생 시 콜백 함수를 호출하면서 에러 객체 전달
+            callback(err, null);
+            return;
+        }
+
+        if(output.result.n){ 
+            console.log("objectId에 해당하는 다이어리 삭제 성공");
+            callback(null,true);
+        }
+        else{
+            console.log("objectId에 해당하는 다이어리 없음.");
+            callback(null,null);
+        }
+        
+    });
+};
             
 module.exports.init = init;
 module.exports.postDiary = postDiary;
 module.exports.putDiary = putDiary;
 module.exports.deleteDiary = deleteDiary;
 module.exports.getDiaryByDate = getDiaryByDate;
+module.exports.deleteDiaryById = deleteDiaryById;

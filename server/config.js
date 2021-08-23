@@ -26,6 +26,8 @@ module.exports = {
         {file: './user', path: '/process/login', method:'login',type:'post'}
         ,{file: './user', path: '/process/adduser', method:'adduser',type:'post'}
         ,{file: './user', path: '/process/validate', method:'validate',type:'post'}
+        ,{file: './user', path: '/process/logout', method:'logout',type:'put'}
+        ,{file: './user', path: '/process/secession', method:'deleteUser',type:'delete'}
         ,{file: './usertoken', path: '/token/reissuance', method: 'reissuanceToken', type: 'get'}
         ,{file: './usertoken', path: '/token/issue', method: 'issueToken', type: 'post'}
         ,{file: './usertoken', path: '/token/access', method: 'verifyAccessToken', type: 'get'}
