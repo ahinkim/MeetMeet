@@ -41,6 +41,10 @@ public class AutoLoginActivity extends AppCompatActivity {
             Response.Listener<String> responseListener = new Response.Listener<String>() {
                 @Override
                 public void onResponse(String response) {
+                    //자동 로그인 됐을 때
+                    Intent intent1 = new Intent(getApplicationContext(), MainActivity.class);
+                    startActivity(intent1);
+                    finish();
                 }
             };
             Response.ErrorListener errorListener = new Response.ErrorListener() {
@@ -59,6 +63,13 @@ public class AutoLoginActivity extends AppCompatActivity {
                                 SharedPreferences.Editor editor = preferences.edit();
                                 editor.putString("accessToken", newAccessToken);
                                 editor.commit();
+
+                                headers.put("access", newAccessToken);
+
+                                //자동 로그인 됐을 때
+                                Intent intent1 = new Intent(getApplicationContext(), MainActivity.class);
+                                startActivity(intent1);
+                                finish();
 
                             } catch (JSONException e) {
                                 e.printStackTrace();
@@ -82,11 +93,6 @@ public class AutoLoginActivity extends AppCompatActivity {
             TokenValidateRequest tokenValidateRequest = new TokenValidateRequest(headers, responseListener, errorListener);
             RequestQueue queue = Volley.newRequestQueue(AutoLoginActivity.this);
             queue.add(tokenValidateRequest);
-
-            //자동 로그인 됐을 때
-            Intent intent1 = new Intent(getApplicationContext(), MainActivity.class);
-            startActivity(intent1);
-            finish();
         }
     }
 }

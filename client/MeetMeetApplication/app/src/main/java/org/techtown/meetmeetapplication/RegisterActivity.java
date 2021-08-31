@@ -121,7 +121,7 @@ public class RegisterActivity extends AppCompatActivity {
                 }
 
                 Toast.makeText(getApplicationContext(), String.format("%s님 가입을 환영합니다.", nickname), Toast.LENGTH_SHORT).show();
-                Intent intent = new Intent(RegisterActivity.this, MainActivity.class);
+                Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
                 startActivity(intent);
 
                 Response.Listener<String> responseListener = new Response.Listener<String>() {

@@ -20,6 +20,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.techtown.meetmeetapp.R;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 
 public class DiaryWriteActivity extends AppCompatActivity {
@@ -43,33 +45,24 @@ public class DiaryWriteActivity extends AppCompatActivity {
 
                 //헤더에 토큰 넣기
                 preferences = getSharedPreferences("UserToken", MODE_PRIVATE);
-                SharedPreferences.Editor editor = preferences.edit();
                 String accessToken=preferences.getString("accessToken","");
                 String refreshToken=preferences.getString("refreshToken","");
                 HashMap<String, String> headers = new HashMap<>();
                 headers.put("access",accessToken);
                 headers.put("refresh",refreshToken);
 
-                //이미 오늘 다이어리 쓴 적 있으면 DiaryModifyActivity로 넘겨주기
-                
-                Response.Listener<String> responseListener= new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        //유효하면 access token과 함께 다이어리 등록 요청
-                        Response.Listener<String> responseListener= new Response.Listener<String>() {
-                            @Override
-                            public void onResponse(String response) {
-                                try {
-                                    //access token 유효하면 오늘 다이어리 id 저장해두기
-                                    JSONObject jsonObject = new JSONObject(response);
-                                    String diary_id=jsonObject.getString("diary_id");
-                                    preferences = getSharedPreferences("TodayDiaryId", MODE_PRIVATE);
-                                    SharedPreferences.Editor editor = preferences.edit();
-                                    editor.putString("todayDiaryId", diary_id);
-                                    editor.commit();
-                                    }catch (JSONException e){
-                                        e.printStackTrace();
-                                    }
+                    Response.Listener<String> responseListener= new Response.Listener<String>() {
+                        @Override
+                        public void onResponse(String response) {
+                            //유효하면 access token과 함께 다이어리 등록 요청
+                            Response.Listener<String> responseListener= new Response.Listener<String>() {
+                                @Override
+                                public void onResponse(String response) {
+                                    //메인 화면으로 돌아가기
+                                    Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                                    startActivity(intent);
+                                    finish();
+
                                 }
                             };
                             Response.ErrorListener errorListener = new Response.ErrorListener() {
@@ -80,79 +73,70 @@ public class DiaryWriteActivity extends AppCompatActivity {
                             DiaryWriteRequest diaryWriteRequest = new DiaryWriteRequest(headers,diary,responseListener, errorListener);
                             RequestQueue queue = Volley.newRequestQueue( DiaryWriteActivity.this );
                             queue.add( diaryWriteRequest );
-                    }
-                };
-                Response.ErrorListener errorListener=new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        //access token이 유효하지 않을 때 Reissue
-                        Response.Listener<String> responseListener = new Response.Listener<String>() {
-                            @Override
-                            public void onResponse(String response) {
-                                try {
-                                    JSONObject jsonObject = new JSONObject(response);
+                        }
+                    };
+                    Response.ErrorListener errorListener=new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                            //access token이 유효하지 않을 때 Reissue
+                            Response.Listener<String> responseListener = new Response.Listener<String>() {
+                                @Override
+                                public void onResponse(String response) {
+                                    try {
+                                        JSONObject jsonObject = new JSONObject(response);
 
-                                    //access token 재발급 성공
-                                    String newAccessToken = jsonObject.getString("newAccessToken");
-                                    preferences = getSharedPreferences("UserToken", MODE_PRIVATE);
-                                    SharedPreferences.Editor editor = preferences.edit();
-                                    editor.putString("accessToken", newAccessToken);
-                                    editor.commit();
+                                        //access token 재발급 성공
+                                        String newAccessToken = jsonObject.getString("newAccessToken");
+                                        preferences = getSharedPreferences("UserToken", MODE_PRIVATE);
+                                        SharedPreferences.Editor editor = preferences.edit();
+                                        editor.putString("accessToken", newAccessToken);
+                                        editor.commit();
 
-                                    //유효하면 access token과 함께 다이어리 등록 요청
-                                    Response.Listener<String> responseListener= new Response.Listener<String>() {
-                                        @Override
-                                        public void onResponse(String response) {
-                                            try {
-                                                //access token 유효하면 오늘 다이어리 id 저장해두기
-                                                JSONObject jsonObject = new JSONObject(response);
-                                                String diary_id=jsonObject.getString("diary_id");
-                                                preferences = getSharedPreferences("TodayDiaryId", MODE_PRIVATE);
-                                                SharedPreferences.Editor editor = preferences.edit();
-                                                editor.putString("todayDiaryId", diary_id);
-                                                editor.commit();
-                                            }catch (JSONException e){
-                                                e.printStackTrace();
+                                        headers.put("access", newAccessToken);
+
+                                        //유효하면 access token과 함께 다이어리 등록 요청
+                                        Response.Listener<String> responseListener= new Response.Listener<String>() {
+                                            @Override
+                                            public void onResponse(String response) {
+                                                //메인 화면으로 돌아가기
+                                                Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                                                startActivity(intent);
+                                                finish();
+
                                             }
-                                        }
-                                    };
-                                    Response.ErrorListener errorListener = new Response.ErrorListener() {
-                                        @Override
-                                        public void onErrorResponse(VolleyError error) {
-                                        }
-                                    };
-                                    DiaryWriteRequest diaryWriteRequest = new DiaryWriteRequest(headers,diary,responseListener, errorListener);
-                                    RequestQueue queue = Volley.newRequestQueue( DiaryWriteActivity.this );
-                                    queue.add( diaryWriteRequest );
+                                        };
+                                        Response.ErrorListener errorListener = new Response.ErrorListener() {
+                                            @Override
+                                            public void onErrorResponse(VolleyError error) {
+                                            }
+                                        };
+                                        DiaryWriteRequest diaryWriteRequest = new DiaryWriteRequest(headers,diary,responseListener, errorListener);
+                                        RequestQueue queue = Volley.newRequestQueue( DiaryWriteActivity.this );
+                                        queue.add( diaryWriteRequest );
 
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                    }
                                 }
-                            }
-                        };
-                        Response.ErrorListener errorListener = new Response.ErrorListener() {
-                            @Override
-                            public void onErrorResponse(VolleyError error) {
-                                //access token 재발급 실패하면 로그인으로 돌아감
-                                Intent intent2 = new Intent(getApplicationContext(), LoginActivity.class);
-                                startActivity(intent2);
-                                finish();
-                            }
-                        };
-                        //서버로 Volley를 이용해서 요청
-                        TokenReissueRequest tokenReissueRequest = new TokenReissueRequest(headers, responseListener, errorListener);
-                        RequestQueue queue1 = Volley.newRequestQueue(DiaryWriteActivity.this);
-                        queue1.add(tokenReissueRequest);
-                    }
-                };
-                TokenValidateRequest tokenValidateRequest = new TokenValidateRequest(headers,responseListener, errorListener);
-                RequestQueue queue = Volley.newRequestQueue( DiaryWriteActivity.this );
-                queue.add( tokenValidateRequest );
-
-                //메인 화면으로 돌아가기
-                Intent intent1 = new Intent(getApplicationContext(), MainActivity.class);
-                startActivity(intent1);
-                finish();
+                            };
+                            Response.ErrorListener errorListener = new Response.ErrorListener() {
+                                @Override
+                                public void onErrorResponse(VolleyError error) {
+                                    //access token 재발급 실패하면 로그인으로 돌아감
+                                    Intent intent2 = new Intent(getApplicationContext(), LoginActivity.class);
+                                    startActivity(intent2);
+                                    finish();
+                                }
+                            };
+                            //서버로 Volley를 이용해서 요청
+                            TokenReissueRequest tokenReissueRequest = new TokenReissueRequest(headers, responseListener, errorListener);
+                            RequestQueue queue1 = Volley.newRequestQueue(DiaryWriteActivity.this);
+                            queue1.add(tokenReissueRequest);
+                        }
+                    };
+                    TokenValidateRequest tokenValidateRequest = new TokenValidateRequest(headers,responseListener, errorListener);
+                    RequestQueue queue = Volley.newRequestQueue( DiaryWriteActivity.this );
+                    queue.add( tokenValidateRequest );
             }
 
         });

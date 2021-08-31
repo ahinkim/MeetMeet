@@ -7,21 +7,19 @@ import com.android.volley.toolbox.StringRequest;
 import java.util.HashMap;
 import java.util.Map;
 
-public class DiaryWriteRequest extends StringRequest {
+public class NicknameModifyRequest extends StringRequest {
 
     //서버 URL 설정
-    //다이어리 작성 요청 /diary
-    final static private String URL = "http://be97-182-222-218-49.ngrok.io/diary";
+    //닉네임 수정 요청 /mypage/nickname
+    static private String URL = "http://be97-182-222-218-49.ngrok.io/mypage/nickname";
     private final Map<String, String> headers;
     private Map<String, String> map;
 
-    public DiaryWriteRequest(Map<String, String> headers, String diary, Response.Listener<String> listener, Response.ErrorListener errorListener ){
-        super(Method.POST, URL, listener, errorListener);
-
+    public NicknameModifyRequest(Map<String, String> headers, String nickname, Response.Listener<String> listener, Response.ErrorListener errorListener ){
+        super(Method.PUT, URL, listener, errorListener);
         this.headers=headers;
-
         map = new HashMap<>();
-        map.put("diary", diary);
+        map.put("nickname", nickname);
     }
 
     @Override

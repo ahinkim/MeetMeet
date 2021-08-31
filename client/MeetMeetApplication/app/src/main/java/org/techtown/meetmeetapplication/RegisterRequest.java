@@ -11,7 +11,7 @@ public class RegisterRequest extends StringRequest {
 
     //서버 URL 설정
     //회원가입 요청 /process/adduser
-    final static private String URL = "http://80de-182-222-218-49.ngrok.io/process/adduser";
+    final static private String URL = "http://f6f8-182-222-218-49.ngrok.io/process/adduser";
     private Map<String, String> map;
 
     public RegisterRequest(String id, String password,String nickname, Response.Listener<String> listener) {
