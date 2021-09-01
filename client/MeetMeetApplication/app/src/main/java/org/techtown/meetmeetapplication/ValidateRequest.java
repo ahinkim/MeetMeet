@@ -11,7 +11,7 @@ public class ValidateRequest extends StringRequest {
 
     //서버 url 설정
     //아이디 중복 확인 요청 /process/validate
-    final static  private String URL="http://be97-182-222-218-49.ngrok.io/process/validate";
+    final static  private String URL="http://9bb4-182-222-218-49.ngrok.io/process/validate";
     private Map<String, String> map;
 
     public ValidateRequest(String id, Response.Listener<String> listener){

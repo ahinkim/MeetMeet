@@ -11,14 +11,14 @@ public class DiaryModifyRequest extends StringRequest {
 
     //서버 URL 설정
     //다이어리 수정 요청 /diary
-    static private String URL = "http://be97-182-222-218-49.ngrok.io/diary";
+    //static private String URL = "http://ce01-182-222-218-49.ngrok.io/diary";
     private final Map<String, String> headers;
     private Map<String, String> map;
 
-    public DiaryModifyRequest(Map<String, String> headers,String id, String diary, Response.Listener<String> listener, Response.ErrorListener errorListener ){
-        super(Method.PUT, URL, listener, errorListener);
+    public DiaryModifyRequest(String url, Map<String, String> headers,String diary, Response.Listener<String> listener, Response.ErrorListener errorListener ){
+        super(Method.PUT, url, listener, errorListener);
         this.headers=headers;
-        URL= URL+"?id="+id;
+        //URL= URL+"?id="+id;
         map = new HashMap<>();
         map.put("diary", diary);
     }

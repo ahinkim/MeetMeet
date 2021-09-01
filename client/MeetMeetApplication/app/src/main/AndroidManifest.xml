@@ -26,6 +26,7 @@
         <activity android:name="org.techtown.meetmeetapplication.AutoLoginActivity" android:exported="true"></activity>
         <activity android:name="org.techtown.meetmeetapplication.LoginActivity" android:exported="true"></activity>
         <activity android:name="org.techtown.meetmeetapplication.NicknameModifyActivity" android:exported="true"></activity>
+        <activity android:name="org.techtown.meetmeetapplication.DiaryModifyActivity" android:exported="true"></activity>
     </application>
 
 </manifest>

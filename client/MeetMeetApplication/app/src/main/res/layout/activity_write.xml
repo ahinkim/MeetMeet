@@ -48,16 +48,16 @@
     </LinearLayout>
 
     <TextView
-        android:id="@+id/day_text"
+        android:id="@+id/date_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="60dp"
-        android:layout_marginLeft="60dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginLeft="10dp"
         android:layout_marginTop="40dp"
-        android:text="TUESDAY"
+        android:text="17"
         android:textColor="#C1C1ED"
         android:textSize="20sp"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/slash2"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
@@ -70,7 +70,7 @@
         android:text="/"
         android:textColor="#C1C1ED"
         android:textSize="20sp"
-        app:layout_constraintStart_toEndOf="@+id/day_text"
+        app:layout_constraintStart_toEndOf="@+id/year_text"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
@@ -80,7 +80,7 @@
         android:layout_marginStart="10dp"
         android:layout_marginLeft="10dp"
         android:layout_marginTop="40dp"
-        android:text="AUGUST 17"
+        android:text="AUGUST"
         android:textColor="#C1C1ED"
         android:textSize="20sp"
         app:layout_constraintStart_toEndOf="@+id/slash1"
@@ -103,13 +103,13 @@
         android:id="@+id/year_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="10dp"
-        android:layout_marginLeft="10dp"
+        android:layout_marginStart="100dp"
+        android:layout_marginLeft="100dp"
         android:layout_marginTop="40dp"
         android:text="2021"
         android:textColor="#C1C1ED"
         android:textSize="20sp"
-        app:layout_constraintStart_toEndOf="@+id/slash2"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         tools:ignore="MissingConstraints" />
 

@@ -1,6 +1,7 @@
 package org.techtown.meetmeetapplication;
 
 import android.app.DatePickerDialog;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -8,6 +9,8 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.ImageButton;
@@ -49,10 +52,6 @@ public class MainActivity extends AppCompatActivity {
     RecyclerView recyclerView;
     NoteAdapter adapter;
 
-    Context context;
-
-    ArrayList<NoteItem> mList=new ArrayList<NoteItem>();
-
     DatePickerDialog.OnDateSetListener monthlistener = new DatePickerDialog.OnDateSetListener() {
         @Override
         public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth){
@@ -69,6 +68,178 @@ public class MainActivity extends AppCompatActivity {
             else if(monthOfYear==10){month_button.setText("OCTOBER");}
             else if(monthOfYear==11){month_button.setText("NOVEMBER");}
             else if(monthOfYear==12){month_button.setText("DECEMBER");}
+
+            //단말에 저장된 token 받아오기
+            preferences = getSharedPreferences("UserToken", MODE_PRIVATE);
+            SharedPreferences.Editor editor = preferences.edit();
+            String accessToken = preferences.getString("accessToken", "");
+            String refreshToken = preferences.getString("refreshToken", "");
+
+            //헤더에 토큰 넣기
+            HashMap<String, String> headers = new HashMap<>();
+            headers.put("access", accessToken);
+            headers.put("refresh", refreshToken);
+
+            //한달치 일기 받아오기
+            Response.Listener<String> responseListener= new Response.Listener<String>() {
+                @Override
+                public void onResponse(String response) {
+                    //유효하면 access token과 함께 한달치 다이어리 요청
+                    Response.Listener<String> responseListener= new Response.Listener<String>() {
+                        @Override
+                        public void onResponse(String response) {
+                            try {
+                                //access token 유효하면 diaries jsonArray 받아오기
+                                JSONObject jsonObject = new JSONObject(response);
+                                JSONArray diariesArray=jsonObject.optJSONArray("diaries");
+                                JSONObject element;
+                            /*
+                            for(int i=0;i<diariesArray.length();i++){
+                                element=(JSONObject) diariesArray.opt(i);
+                                adapter.addItem(new NoteItem(element.optString("_id")
+                                        ,element.optString("diary")
+                                        ,element.optString("created_At")));
+                            }
+
+                             */
+                                ArrayList<NoteItem> items=new ArrayList<NoteItem>();
+                                for(int i=0;i<diariesArray.length();i++){
+                                    element=(JSONObject) diariesArray.opt(i);
+                                    items.add(new NoteItem(element.optString("_id")
+                                            ,element.optString("diary")
+                                            ,element.optString("created_At")));
+                                }
+                                adapter.setItems(items);
+                                adapter.notifyDataSetChanged();
+                            }catch (JSONException e){
+
+                                e.printStackTrace();
+                            }
+                        }
+                    };
+                    Response.ErrorListener errorListener = new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                        }
+                    };
+                    String yearString=year_button.getText().toString();
+                    Integer year=Integer.parseInt(yearString);
+                    String monthString=month_button.getText().toString();
+                    Integer month=0;
+                    if(monthString.equals("JANUARY")){month=1;}
+                    else if(monthString.equals("FEBRUARY")){month=2;}
+                    else if(monthString.equals("MARCH")){month=3;}
+                    else if(monthString.equals("APRIL")){month=4;}
+                    else if(monthString.equals("MAY")){month=5;}
+                    else if(monthString.equals("JUNE")){month=6;}
+                    else if(monthString.equals("JULY")){month=7;}
+                    else if(monthString.equals("AUGUST")){month=8;}
+                    else if(monthString.equals("SEPTEMBER")){month=9;}
+                    else if(monthString.equals("OCTOBER")){month=10;}
+                    else if(monthString.equals("NOVEMBER")){month=11;}
+                    else if(monthString.equals("DECEMBER")){month=12;}
+
+                    String url="http://9bb4-182-222-218-49.ngrok.io/diary"+"?year="+year+"&month="+month;
+                    DiaryMonthReqeust diaryMonthReqeust = new DiaryMonthReqeust(url,headers,responseListener, errorListener);
+                    RequestQueue queue = Volley.newRequestQueue( MainActivity.this );
+                    queue.add( diaryMonthReqeust );
+                }
+            };
+            Response.ErrorListener errorListener=new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    //access token이 유효하지 않을 때 Reissue
+                    Response.Listener<String> responseListener = new Response.Listener<String>() {
+                        @Override
+                        public void onResponse(String response) {
+                            try {
+                                JSONObject jsonObject = new JSONObject(response);
+
+                                //access token 재발급 성공
+                                String newAccessToken = jsonObject.getString("newAccessToken");
+                                preferences = getSharedPreferences("UserToken", MODE_PRIVATE);
+                                SharedPreferences.Editor editor = preferences.edit();
+                                editor.putString("accessToken", newAccessToken);
+                                editor.commit();
+
+                                headers.put("access", newAccessToken);
+
+
+                                //유효하면 access token과 함께 한달치 다이어리 요청
+                                Response.Listener<String> responseListener= new Response.Listener<String>() {
+                                    @Override
+                                    public void onResponse(String response) {
+                                        try {
+                                            //access token 유효하면 diaries jsonArray 받아오기
+                                            JSONObject jsonObject = new JSONObject(response);
+                                            JSONArray diariesArray=jsonObject.optJSONArray("diaries");
+                                            JSONObject element;
+                                            ArrayList<NoteItem> items=new ArrayList<NoteItem>();
+                                            for(int i=0;i<diariesArray.length();i++){
+                                                element=(JSONObject) diariesArray.opt(i);
+                                                items.add(new NoteItem(element.optString("_id")
+                                                        ,element.optString("diary")
+                                                        ,element.optString("created_At")));
+                                            }
+                                            adapter.setItems(items);
+                                            adapter.notifyDataSetChanged();
+                                        }catch (JSONException e){
+                                            e.printStackTrace();
+                                        }
+                                    }
+                                };
+                                Response.ErrorListener errorListener = new Response.ErrorListener() {
+                                    @Override
+                                    public void onErrorResponse(VolleyError error) {
+                                    }
+                                };
+                                String yearString=year_button.getText().toString();
+                                Integer year=Integer.parseInt(yearString);
+                                String monthString=month_button.getText().toString();
+                                Integer month=0;
+                                if(monthString.equals("JANUARY")){month=1;}
+                                else if(monthString.equals("FEBRUARY")){month=2;}
+                                else if(monthString.equals("MARCH")){month=3;}
+                                else if(monthString.equals("APRIL")){month=4;}
+                                else if(monthString.equals("MAY")){month=5;}
+                                else if(monthString.equals("JUNE")){month=6;}
+                                else if(monthString.equals("JULY")){month=7;}
+                                else if(monthString.equals("AUGUST")){month=8;}
+                                else if(monthString.equals("SEPTEMBER")){month=9;}
+                                else if(monthString.equals("OCTOBER")){month=10;}
+                                else if(monthString.equals("NOVEMBER")){month=11;}
+                                else if(monthString.equals("DECEMBER")){month=12;}
+
+                                String url="http://9bb4-182-222-218-49.ngrok.io/diary"+"?year="+year+"&month="+month;
+                                DiaryMonthReqeust diaryMonthReqeust = new DiaryMonthReqeust(url, headers,responseListener, errorListener);
+                                RequestQueue queue = Volley.newRequestQueue( MainActivity.this );
+                                queue.add( diaryMonthReqeust );
+
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    };
+                    Response.ErrorListener errorListener = new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                            //access token 재발급 실패하면 로그인으로 돌아감
+                            Intent intent2 = new Intent(getApplicationContext(), LoginActivity.class);
+                            startActivity(intent2);
+                            finish();
+                        }
+                    };
+                    //서버로 Volley를 이용해서 요청
+                    TokenReissueRequest tokenReissueRequest = new TokenReissueRequest(headers, responseListener, errorListener);
+                    RequestQueue queue1 = Volley.newRequestQueue(MainActivity.this);
+                    queue1.add(tokenReissueRequest);
+                }
+            };
+            TokenValidateRequest tokenValidateRequest = new TokenValidateRequest(headers,responseListener, errorListener);
+            RequestQueue queue = Volley.newRequestQueue( MainActivity.this );
+            queue.add( tokenValidateRequest );
+
+            recyclerView.setAdapter(adapter) ;
         }
     };
     DatePickerDialog.OnDateSetListener yearlistener=new DatePickerDialog.OnDateSetListener() {
@@ -76,6 +247,178 @@ public class MainActivity extends AppCompatActivity {
         public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
             //선택한 연도로 버튼 바뀜
             year_button.setText(""+year);
+
+            //단말에 저장된 token 받아오기
+            preferences = getSharedPreferences("UserToken", MODE_PRIVATE);
+            SharedPreferences.Editor editor = preferences.edit();
+            String accessToken = preferences.getString("accessToken", "");
+            String refreshToken = preferences.getString("refreshToken", "");
+
+            //헤더에 토큰 넣기
+            HashMap<String, String> headers = new HashMap<>();
+            headers.put("access", accessToken);
+            headers.put("refresh", refreshToken);
+
+            //한달치 일기 받아오기
+            Response.Listener<String> responseListener= new Response.Listener<String>() {
+                @Override
+                public void onResponse(String response) {
+                    //유효하면 access token과 함께 한달치 다이어리 요청
+                    Response.Listener<String> responseListener= new Response.Listener<String>() {
+                        @Override
+                        public void onResponse(String response) {
+                            try {
+                                //access token 유효하면 diaries jsonArray 받아오기
+                                JSONObject jsonObject = new JSONObject(response);
+                                JSONArray diariesArray=jsonObject.optJSONArray("diaries");
+                                JSONObject element;
+                            /*
+                            for(int i=0;i<diariesArray.length();i++){
+                                element=(JSONObject) diariesArray.opt(i);
+                                adapter.addItem(new NoteItem(element.optString("_id")
+                                        ,element.optString("diary")
+                                        ,element.optString("created_At")));
+                            }
+
+                             */
+                                ArrayList<NoteItem> items=new ArrayList<NoteItem>();
+                                for(int i=0;i<diariesArray.length();i++){
+                                    element=(JSONObject) diariesArray.opt(i);
+                                    items.add(new NoteItem(element.optString("_id")
+                                            ,element.optString("diary")
+                                            ,element.optString("created_At")));
+                                }
+                                adapter.setItems(items);
+                                adapter.notifyDataSetChanged();
+                            }catch (JSONException e){
+
+                                e.printStackTrace();
+                            }
+                        }
+                    };
+                    Response.ErrorListener errorListener = new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                        }
+                    };
+                    String yearString=year_button.getText().toString();
+                    Integer year=Integer.parseInt(yearString);
+                    String monthString=month_button.getText().toString();
+                    Integer month=0;
+                    if(monthString.equals("JANUARY")){month=1;}
+                    else if(monthString.equals("FEBRUARY")){month=2;}
+                    else if(monthString.equals("MARCH")){month=3;}
+                    else if(monthString.equals("APRIL")){month=4;}
+                    else if(monthString.equals("MAY")){month=5;}
+                    else if(monthString.equals("JUNE")){month=6;}
+                    else if(monthString.equals("JULY")){month=7;}
+                    else if(monthString.equals("AUGUST")){month=8;}
+                    else if(monthString.equals("SEPTEMBER")){month=9;}
+                    else if(monthString.equals("OCTOBER")){month=10;}
+                    else if(monthString.equals("NOVEMBER")){month=11;}
+                    else if(monthString.equals("DECEMBER")){month=12;}
+
+                    String url="http://9bb4-182-222-218-49.ngrok.io/diary"+"?year="+year+"&month="+month;
+                    DiaryMonthReqeust diaryMonthReqeust = new DiaryMonthReqeust(url,headers,responseListener, errorListener);
+                    RequestQueue queue = Volley.newRequestQueue( MainActivity.this );
+                    queue.add( diaryMonthReqeust );
+                }
+            };
+            Response.ErrorListener errorListener=new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    //access token이 유효하지 않을 때 Reissue
+                    Response.Listener<String> responseListener = new Response.Listener<String>() {
+                        @Override
+                        public void onResponse(String response) {
+                            try {
+                                JSONObject jsonObject = new JSONObject(response);
+
+                                //access token 재발급 성공
+                                String newAccessToken = jsonObject.getString("newAccessToken");
+                                preferences = getSharedPreferences("UserToken", MODE_PRIVATE);
+                                SharedPreferences.Editor editor = preferences.edit();
+                                editor.putString("accessToken", newAccessToken);
+                                editor.commit();
+
+                                headers.put("access", newAccessToken);
+
+
+                                //유효하면 access token과 함께 한달치 다이어리 요청
+                                Response.Listener<String> responseListener= new Response.Listener<String>() {
+                                    @Override
+                                    public void onResponse(String response) {
+                                        try {
+                                            //access token 유효하면 diaries jsonArray 받아오기
+                                            JSONObject jsonObject = new JSONObject(response);
+                                            JSONArray diariesArray=jsonObject.optJSONArray("diaries");
+                                            JSONObject element;
+                                            ArrayList<NoteItem> items=new ArrayList<NoteItem>();
+                                            for(int i=0;i<diariesArray.length();i++){
+                                                element=(JSONObject) diariesArray.opt(i);
+                                                items.add(new NoteItem(element.optString("_id")
+                                                        ,element.optString("diary")
+                                                        ,element.optString("created_At")));
+                                            }
+                                            adapter.setItems(items);
+                                            adapter.notifyDataSetChanged();
+                                        }catch (JSONException e){
+                                            e.printStackTrace();
+                                        }
+                                    }
+                                };
+                                Response.ErrorListener errorListener = new Response.ErrorListener() {
+                                    @Override
+                                    public void onErrorResponse(VolleyError error) {
+                                    }
+                                };
+                                String yearString=year_button.getText().toString();
+                                Integer year=Integer.parseInt(yearString);
+                                String monthString=month_button.getText().toString();
+                                Integer month=0;
+                                if(monthString.equals("JANUARY")){month=1;}
+                                else if(monthString.equals("FEBRUARY")){month=2;}
+                                else if(monthString.equals("MARCH")){month=3;}
+                                else if(monthString.equals("APRIL")){month=4;}
+                                else if(monthString.equals("MAY")){month=5;}
+                                else if(monthString.equals("JUNE")){month=6;}
+                                else if(monthString.equals("JULY")){month=7;}
+                                else if(monthString.equals("AUGUST")){month=8;}
+                                else if(monthString.equals("SEPTEMBER")){month=9;}
+                                else if(monthString.equals("OCTOBER")){month=10;}
+                                else if(monthString.equals("NOVEMBER")){month=11;}
+                                else if(monthString.equals("DECEMBER")){month=12;}
+
+                                String url="http://9bb4-182-222-218-49.ngrok.io/diary"+"?year="+year+"&month="+month;
+                                DiaryMonthReqeust diaryMonthReqeust = new DiaryMonthReqeust(url, headers,responseListener, errorListener);
+                                RequestQueue queue = Volley.newRequestQueue( MainActivity.this );
+                                queue.add( diaryMonthReqeust );
+
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    };
+                    Response.ErrorListener errorListener = new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                            //access token 재발급 실패하면 로그인으로 돌아감
+                            Intent intent2 = new Intent(getApplicationContext(), LoginActivity.class);
+                            startActivity(intent2);
+                            finish();
+                        }
+                    };
+                    //서버로 Volley를 이용해서 요청
+                    TokenReissueRequest tokenReissueRequest = new TokenReissueRequest(headers, responseListener, errorListener);
+                    RequestQueue queue1 = Volley.newRequestQueue(MainActivity.this);
+                    queue1.add(tokenReissueRequest);
+                }
+            };
+            TokenValidateRequest tokenValidateRequest = new TokenValidateRequest(headers,responseListener, errorListener);
+            RequestQueue queue = Volley.newRequestQueue( MainActivity.this );
+            queue.add( tokenValidateRequest );
+
+            recyclerView.setAdapter(adapter) ;
         }
     };
     @Override
@@ -125,13 +468,8 @@ public class MainActivity extends AppCompatActivity {
         LinearLayoutManager layoutManager=new LinearLayoutManager(getApplicationContext());
         recyclerView.setLayoutManager(layoutManager);
 
-        adapter = new NoteAdapter() ;
+        adapter = new NoteAdapter();
 
-        //일기 데이터 넣어놓기
-        //adapter.addItem(new NoteItem(0,"", "첫번째 일기입니다.","8월 28일"));
-        //adapter.addItem(new NoteItem(1,"", "두번째 일기입니다.","8월 29일"));
-
-        /*
         //한달치 일기 받아오기
         Response.Listener<String> responseListener= new Response.Listener<String>() {
             @Override
@@ -145,6 +483,7 @@ public class MainActivity extends AppCompatActivity {
                             JSONObject jsonObject = new JSONObject(response);
                             JSONArray diariesArray=jsonObject.optJSONArray("diaries");
                             JSONObject element;
+                            /*
                             for(int i=0;i<diariesArray.length();i++){
                                 element=(JSONObject) diariesArray.opt(i);
                                 adapter.addItem(new NoteItem(element.optString("_id")
@@ -152,6 +491,16 @@ public class MainActivity extends AppCompatActivity {
                                         ,element.optString("created_At")));
                             }
 
+                             */
+                            ArrayList<NoteItem> items=new ArrayList<NoteItem>();
+                            for(int i=0;i<diariesArray.length();i++){
+                                element=(JSONObject) diariesArray.opt(i);
+                                items.add(new NoteItem(element.optString("_id")
+                                        ,element.optString("diary")
+                                        ,element.optString("created_At")));
+                            }
+                            adapter.setItems(items);
+                            adapter.notifyDataSetChanged();
                         }catch (JSONException e){
 
                             e.printStackTrace();
@@ -167,20 +516,21 @@ public class MainActivity extends AppCompatActivity {
                 Integer year=Integer.parseInt(yearString);
                 String monthString=month_button.getText().toString();
                 Integer month=0;
-                if(monthString=="JANUARY"){month=1;}
-                else if(monthString=="FEBRUARY"){month=2;}
-                else if(monthString=="MARCH"){month=3;}
-                else if(monthString=="APRIL"){month=4;}
-                else if(monthString=="MAY"){month=5;}
-                else if(monthString=="JUNE"){month=6;}
-                else if(monthString=="JULY"){month=7;}
-                else if(monthString=="AUGUST"){month=8;}
-                else if(monthString=="SEPTEMBER"){month=9;}
-                else if(monthString=="OCTOBER"){month=10;}
-                else if(monthString=="NOVEMBER"){month=11;}
-                else if(monthString=="DECEMBER"){month=12;}
+                if(monthString.equals("JANUARY")){month=1;}
+                else if(monthString.equals("FEBRUARY")){month=2;}
+                else if(monthString.equals("MARCH")){month=3;}
+                else if(monthString.equals("APRIL")){month=4;}
+                else if(monthString.equals("MAY")){month=5;}
+                else if(monthString.equals("JUNE")){month=6;}
+                else if(monthString.equals("JULY")){month=7;}
+                else if(monthString.equals("AUGUST")){month=8;}
+                else if(monthString.equals("SEPTEMBER")){month=9;}
+                else if(monthString.equals("OCTOBER")){month=10;}
+                else if(monthString.equals("NOVEMBER")){month=11;}
+                else if(monthString.equals("DECEMBER")){month=12;}
 
-                DiaryMonthReqeust diaryMonthReqeust = new DiaryMonthReqeust(headers,year,month,responseListener, errorListener);
+                String url="http://9bb4-182-222-218-49.ngrok.io/diary"+"?year="+year+"&month="+month;
+                DiaryMonthReqeust diaryMonthReqeust = new DiaryMonthReqeust(url,headers,responseListener, errorListener);
                 RequestQueue queue = Volley.newRequestQueue( MainActivity.this );
                 queue.add( diaryMonthReqeust );
             }
@@ -214,14 +564,15 @@ public class MainActivity extends AppCompatActivity {
                                         JSONObject jsonObject = new JSONObject(response);
                                         JSONArray diariesArray=jsonObject.optJSONArray("diaries");
                                         JSONObject element;
+                                        ArrayList<NoteItem> items=new ArrayList<NoteItem>();
                                         for(int i=0;i<diariesArray.length();i++){
                                             element=(JSONObject) diariesArray.opt(i);
-                                            adapter.addItem(new NoteItem(element.optString("_id")
+                                            items.add(new NoteItem(element.optString("_id")
                                                     ,element.optString("diary")
                                                     ,element.optString("created_At")));
-                                            Toast.makeText(getApplicationContext(),element.optString("diary"),Toast.LENGTH_LONG).show();
                                         }
-
+                                        adapter.setItems(items);
+                                        adapter.notifyDataSetChanged();
                                     }catch (JSONException e){
                                         e.printStackTrace();
                                     }
@@ -236,20 +587,21 @@ public class MainActivity extends AppCompatActivity {
                             Integer year=Integer.parseInt(yearString);
                             String monthString=month_button.getText().toString();
                             Integer month=0;
-                            if(monthString=="JANUARY"){month=1;}
-                            else if(monthString=="FEBRUARY"){month=2;}
-                            else if(monthString=="MARCH"){month=3;}
-                            else if(monthString=="APRIL"){month=4;}
-                            else if(monthString=="MAY"){month=5;}
-                            else if(monthString=="JUNE"){month=6;}
-                            else if(monthString=="JULY"){month=7;}
-                            else if(monthString=="AUGUST"){month=8;}
-                            else if(monthString=="SEPTEMBER"){month=9;}
-                            else if(monthString=="OCTOBER"){month=10;}
-                            else if(monthString=="NOVEMBER"){month=11;}
-                            else if(monthString=="DECEMBER"){month=12;}
+                            if(monthString.equals("JANUARY")){month=1;}
+                            else if(monthString.equals("FEBRUARY")){month=2;}
+                            else if(monthString.equals("MARCH")){month=3;}
+                            else if(monthString.equals("APRIL")){month=4;}
+                            else if(monthString.equals("MAY")){month=5;}
+                            else if(monthString.equals("JUNE")){month=6;}
+                            else if(monthString.equals("JULY")){month=7;}
+                            else if(monthString.equals("AUGUST")){month=8;}
+                            else if(monthString.equals("SEPTEMBER")){month=9;}
+                            else if(monthString.equals("OCTOBER")){month=10;}
+                            else if(monthString.equals("NOVEMBER")){month=11;}
+                            else if(monthString.equals("DECEMBER")){month=12;}
 
-                            DiaryMonthReqeust diaryMonthReqeust = new DiaryMonthReqeust(headers,year,month,responseListener, errorListener);
+                            String url="http://9bb4-182-222-218-49.ngrok.io/diary"+"?year="+year+"&month="+month;
+                            DiaryMonthReqeust diaryMonthReqeust = new DiaryMonthReqeust(url, headers,responseListener, errorListener);
                             RequestQueue queue = Volley.newRequestQueue( MainActivity.this );
                             queue.add( diaryMonthReqeust );
 
@@ -276,16 +628,153 @@ public class MainActivity extends AppCompatActivity {
         TokenValidateRequest tokenValidateRequest = new TokenValidateRequest(headers,responseListener, errorListener);
         RequestQueue queue = Volley.newRequestQueue( MainActivity.this );
         queue.add( tokenValidateRequest );
-        */
 
         recyclerView.setAdapter(adapter) ;
+
+        //일기 길게 클릭했을 때
+        adapter.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+
+                Dialog dialog;
+                dialog=new Dialog(MainActivity.this);
+                dialog.requestWindowFeature(Window.FEATURE_NO_TITLE); // 타이틀 제거
+                dialog.setContentView(R.layout.activity_dialog);             // xml 레이아웃 파일과 연결
+                Button btnCancel=findViewById(R.id.btn_cancel);
+                Button btnConfirm=findViewById(R.id.btn_confirm);
+
+                btnCancel.setOnClickListener(new View.OnClickListener(){
+                    @Override
+                    public void onClick(View view) {
+                        dialog.dismiss();
+                    }
+                });
+
+                btnConfirm.setOnClickListener(new View.OnClickListener(){
+                    @Override
+                    public void onClick(View view) {
+                        NoteItem item=adapter.getItem(position);
+                        String delete_id=item.getId();
+
+                        //헤더에 토큰 넣기
+                        preferences = getSharedPreferences("UserToken", MODE_PRIVATE);
+                        String accessToken=preferences.getString("accessToken","");
+                        String refreshToken=preferences.getString("refreshToken","");
+                        HashMap<String, String> headers = new HashMap<>();
+                        headers.put("access",accessToken);
+                        headers.put("refresh",refreshToken);
+
+                        Response.Listener<String> responseListener= new Response.Listener<String>() {
+                            @Override
+                            public void onResponse(String response) {
+                                //유효하면 access token과 함께 다이어리 수정 요청
+                                Response.Listener<String> responseListener= new Response.Listener<String>() {
+                                    @Override
+                                    public void onResponse(String response) {
+                                        //메인 화면으로 돌아가기
+                                        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                                        startActivity(intent);
+                                        finish();
+                                    }
+                                };
+                                Response.ErrorListener errorListener = new Response.ErrorListener() {
+                                    @Override
+                                    public void onErrorResponse(VolleyError error) {
+                                    }
+                                };
+                                String url="http://9bb4-182-222-218-49.ngrok.io/diary?id="+delete_id;
+                                DiaryDeleteRequest diaryDeleteRequest = new DiaryDeleteRequest(url, headers,responseListener, errorListener);
+                                RequestQueue queue = Volley.newRequestQueue( MainActivity.this );
+                                queue.add( diaryDeleteRequest );
+                            }
+                        };
+                        Response.ErrorListener errorListener=new Response.ErrorListener() {
+                            @Override
+                            public void onErrorResponse(VolleyError error) {
+                                //access token이 유효하지 않을 때 Reissue
+                                Response.Listener<String> responseListener = new Response.Listener<String>() {
+                                    @Override
+                                    public void onResponse(String response) {
+                                        try {
+                                            JSONObject jsonObject = new JSONObject(response);
+
+                                            //access token 재발급 성공
+                                            String newAccessToken = jsonObject.getString("newAccessToken");
+                                            preferences = getSharedPreferences("UserToken", MODE_PRIVATE);
+                                            SharedPreferences.Editor editor = preferences.edit();
+                                            editor.putString("accessToken", newAccessToken);
+                                            editor.commit();
+
+                                            headers.put("access", newAccessToken);
+
+                                            //유효하면 access token과 함께 다이어리 수정 요청
+                                            Response.Listener<String> responseListener= new Response.Listener<String>() {
+                                                @Override
+                                                public void onResponse(String response) {
+                                                    //메인 화면으로 돌아가기
+                                                    Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                                                    startActivity(intent);
+                                                    finish();
+                                                }
+                                            };
+                                            Response.ErrorListener errorListener = new Response.ErrorListener() {
+                                                @Override
+                                                public void onErrorResponse(VolleyError error) {
+                                                }
+                                            };
+                                            String url="http://9bb4-182-222-218-49.ngrok.io/diary?id="+delete_id;
+                                            DiaryDeleteRequest diaryDeleteRequest = new DiaryDeleteRequest(url, headers,responseListener, errorListener);
+                                            RequestQueue queue = Volley.newRequestQueue( MainActivity.this );
+                                            queue.add( diaryDeleteRequest );
+                                        } catch (JSONException e) {
+                                            e.printStackTrace();
+                                        }
+                                    }
+                                };
+                                Response.ErrorListener errorListener = new Response.ErrorListener() {
+                                    @Override
+                                    public void onErrorResponse(VolleyError error) {
+                                        //access token 재발급 실패하면 로그인으로 돌아감
+                                        Intent intent2 = new Intent(getApplicationContext(), LoginActivity.class);
+                                        startActivity(intent2);
+                                        finish();
+                                    }
+                                };
+                                //서버로 Volley를 이용해서 요청
+                                TokenReissueRequest tokenReissueRequest = new TokenReissueRequest(headers, responseListener, errorListener);
+                                RequestQueue queue1 = Volley.newRequestQueue(MainActivity.this);
+                                queue1.add(tokenReissueRequest);
+                            }
+                        };
+                        TokenValidateRequest tokenValidateRequest = new TokenValidateRequest(headers,responseListener, errorListener);
+                        RequestQueue queue = Volley.newRequestQueue( MainActivity.this );
+                        queue.add( tokenValidateRequest );
+
+                        dialog.dismiss();
+                    }
+                });
+                return true;
+            }
+        });
 
         //일기 클릭했을 때
         adapter.setOnItemClickListener(new OnNoteItemClickListener() {
             @Override
             public void onItemClick(NoteAdapter.ViewHolder holder, View view, int position) {
                 NoteItem item=adapter.getItem(position);
-                Toast.makeText(getApplicationContext(),"아이템 선택됨: "+item.getContents(),Toast.LENGTH_LONG).show();
+
+                String modify_id=item.getId();
+                String modify_contents=item.getContents();
+                String modify_date=item.getCreateDateStr();
+
+                Intent intent = new Intent( MainActivity.this, DiaryModifyActivity.class );
+
+                intent.putExtra("modify_id",modify_id);
+                intent.putExtra("modify_contents",modify_contents);
+                intent.putExtra("modify_date",modify_date);
+
+                startActivity( intent );
+                //finish();
             }
         });
 
@@ -313,15 +802,16 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Intent intent = new Intent( MainActivity.this, DiaryWriteActivity.class );
                 startActivity( intent );
-                finish();
+                //finish();
             }
         });
+        //마이페이지 버튼
         mypage_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent( MainActivity.this, MypageActivity.class );
                 startActivity( intent );
-                finish();
+                //finish();
             }
         });
     }

@@ -11,7 +11,7 @@ public class LogoutRequest extends StringRequest {
 
     //서버 URL 설정
     //닉네임 수정 요청 /mypage/nickname
-    static private String URL = "http://be97-182-222-218-49.ngrok.io/process/logout";
+    static private String URL = "http://9bb4-182-222-218-49.ngrok.io/process/logout";
     private final Map<String, String> headers;
 
     public LogoutRequest(Map<String, String> headers, Response.Listener<String> listener, Response.ErrorListener errorListener ){

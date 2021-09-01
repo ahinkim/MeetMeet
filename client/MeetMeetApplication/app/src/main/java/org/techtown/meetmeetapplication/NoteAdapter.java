@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -22,6 +23,7 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.ViewHolder> im
     ArrayList<NoteItem> items=new ArrayList<NoteItem>();
 
     OnNoteItemClickListener listener;
+    AdapterView.OnItemLongClickListener longListener;
 
     @NonNull
     @Override
@@ -61,6 +63,10 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.ViewHolder> im
         if(listener!=null){
             listener.onItemClick(holder,view,position);
         }
+    }
+
+    public void setOnItemLongClickListener(AdapterView.OnItemLongClickListener longListener){
+        this.longListener=longListener;
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder{

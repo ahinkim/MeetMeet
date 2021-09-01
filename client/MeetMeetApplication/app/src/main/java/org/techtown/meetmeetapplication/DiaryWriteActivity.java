@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
@@ -21,6 +22,7 @@ import org.json.JSONObject;
 import org.techtown.meetmeetapp.R;
 
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 
@@ -30,6 +32,10 @@ public class DiaryWriteActivity extends AppCompatActivity {
     private SharedPreferences preferences;
     private Button done_button;
 
+    private TextView year_text;
+    private TextView month_text;
+    private TextView date_text;
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -37,6 +43,35 @@ public class DiaryWriteActivity extends AppCompatActivity {
 
         write_text=findViewById(R.id.write_text);
         done_button=findViewById(R.id.done_button);
+
+        year_text=findViewById(R.id.year_text);
+        month_text=findViewById(R.id.month_text);
+        date_text=findViewById(R.id.date_text);
+
+        long now=System.currentTimeMillis();
+        Date mDate=new Date(now);
+        SimpleDateFormat simpleDate=new SimpleDateFormat("yyyy-MM-dd ");
+        String getTime=simpleDate.format(mDate);
+
+        String year=getTime.substring(0,4);
+        String month=getTime.substring(5,7);
+        String date=getTime.substring(8,10);
+
+        year_text.setText(year);
+        date_text.setText(date);
+
+        if(month.equals("01")){month_text.setText("JANUARY");}
+        else if(month.equals("02")){month_text.setText("FEBRUARY");}
+        else if(month.equals("03")){month_text.setText("MARCH");}
+        else if(month.equals("04")){month_text.setText("APRIL");}
+        else if(month.equals("05")){month_text.setText("MAY");}
+        else if(month.equals("06")){month_text.setText("JUNE");}
+        else if(month.equals("07")){month_text.setText("JULY");}
+        else if(month.equals("08")){month_text.setText("AUGUST");}
+        else if(month.equals("09")){month_text.setText("SEPTEMBER");}
+        else if(month.equals("10")){month_text.setText("OCTOBER");}
+        else if(month.equals("11")){month_text.setText("NOVEMBER");}
+        else if(month.equals("12")){month_text.setText("DECEMBER");}
 
         done_button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -62,7 +97,6 @@ public class DiaryWriteActivity extends AppCompatActivity {
                                     Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                                     startActivity(intent);
                                     finish();
-
                                 }
                             };
                             Response.ErrorListener errorListener = new Response.ErrorListener() {
@@ -102,7 +136,6 @@ public class DiaryWriteActivity extends AppCompatActivity {
                                                 Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                                                 startActivity(intent);
                                                 finish();
-
                                             }
                                         };
                                         Response.ErrorListener errorListener = new Response.ErrorListener() {

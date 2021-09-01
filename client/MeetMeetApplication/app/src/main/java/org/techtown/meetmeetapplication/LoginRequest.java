@@ -10,7 +10,7 @@ public class LoginRequest extends StringRequest {
 
     //서버 URL 설정
     //로그인 요청 /process/login
-    final static private String URL = "http://be97-182-222-218-49.ngrok.io/process/login";
+    final static private String URL = "http://9bb4-182-222-218-49.ngrok.io/process/login";
     private Map<String, String> map;
 
     public LoginRequest(String id, String password, Response.Listener<String> listener) {

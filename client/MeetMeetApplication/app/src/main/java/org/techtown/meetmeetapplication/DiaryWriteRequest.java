@@ -11,7 +11,7 @@ public class DiaryWriteRequest extends StringRequest {
 
     //서버 URL 설정
     //다이어리 작성 요청 /diary
-    final static private String URL = "http://be97-182-222-218-49.ngrok.io/diary";
+    final static private String URL = "http://9bb4-182-222-218-49.ngrok.io/diary";
     private final Map<String, String> headers;
     private Map<String, String> map;
 
