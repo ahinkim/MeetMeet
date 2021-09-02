@@ -10,7 +10,7 @@ public class SecessionRequest extends StringRequest {
 
     //서버 URL 설정
     //닉네임 수정 요청 /mypage/nickname
-    static private String URL = "http://9bb4-182-222-218-49.ngrok.io/process/secession";
+    static private String URL = "http://0485-182-222-218-49.ngrok.io/process/secession";
     private final Map<String, String> headers;
 
     public SecessionRequest(Map<String, String> headers, Response.Listener<String> listener, Response.ErrorListener errorListener ){

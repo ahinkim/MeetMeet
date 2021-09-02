@@ -11,7 +11,6 @@ public class DiaryModifyRequest extends StringRequest {
 
     //서버 URL 설정
     //다이어리 수정 요청 /diary
-    //static private String URL = "http://ce01-182-222-218-49.ngrok.io/diary";
     private final Map<String, String> headers;
     private Map<String, String> map;
 

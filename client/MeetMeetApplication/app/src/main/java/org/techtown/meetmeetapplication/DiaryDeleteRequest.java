@@ -11,7 +11,6 @@ public class DiaryDeleteRequest extends StringRequest {
 
     //서버 URL 설정
     //다이어리 삭제 요청 /diary
-    //static private String URL = "http://9bb4-182-222-218-49.ngrok.io/diary";
     private final Map<String, String> headers;
     private Map<String, String> map;
 

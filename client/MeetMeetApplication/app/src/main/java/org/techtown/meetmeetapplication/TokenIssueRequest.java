@@ -15,7 +15,7 @@ public class TokenIssueRequest extends StringRequest {
 
     //서버 URL 설정
     //access,refresh token 발급 요청 /token/issue
-    final static private String URL = "http://9bb4-182-222-218-49.ngrok.io/token/issue";
+    final static private String URL = "http://0485-182-222-218-49.ngrok.io/token/issue";
     private Map<String, String> map;
 
     public TokenIssueRequest(String id, String password, Response.Listener<String> listener) {

@@ -93,15 +93,7 @@ public class MainActivity extends AppCompatActivity {
                                 JSONObject jsonObject = new JSONObject(response);
                                 JSONArray diariesArray=jsonObject.optJSONArray("diaries");
                                 JSONObject element;
-                            /*
-                            for(int i=0;i<diariesArray.length();i++){
-                                element=(JSONObject) diariesArray.opt(i);
-                                adapter.addItem(new NoteItem(element.optString("_id")
-                                        ,element.optString("diary")
-                                        ,element.optString("created_At")));
-                            }
 
-                             */
                                 ArrayList<NoteItem> items=new ArrayList<NoteItem>();
                                 for(int i=0;i<diariesArray.length();i++){
                                     element=(JSONObject) diariesArray.opt(i);
@@ -139,7 +131,7 @@ public class MainActivity extends AppCompatActivity {
                     else if(monthString.equals("NOVEMBER")){month=11;}
                     else if(monthString.equals("DECEMBER")){month=12;}
 
-                    String url="http://9bb4-182-222-218-49.ngrok.io/diary"+"?year="+year+"&month="+month;
+                    String url="http://0485-182-222-218-49.ngrok.io/diary"+"?year="+year+"&month="+month;
                     DiaryMonthReqeust diaryMonthReqeust = new DiaryMonthReqeust(url,headers,responseListener, errorListener);
                     RequestQueue queue = Volley.newRequestQueue( MainActivity.this );
                     queue.add( diaryMonthReqeust );
@@ -210,7 +202,7 @@ public class MainActivity extends AppCompatActivity {
                                 else if(monthString.equals("NOVEMBER")){month=11;}
                                 else if(monthString.equals("DECEMBER")){month=12;}
 
-                                String url="http://9bb4-182-222-218-49.ngrok.io/diary"+"?year="+year+"&month="+month;
+                                String url="http://0485-182-222-218-49.ngrok.io/diary"+"?year="+year+"&month="+month;
                                 DiaryMonthReqeust diaryMonthReqeust = new DiaryMonthReqeust(url, headers,responseListener, errorListener);
                                 RequestQueue queue = Volley.newRequestQueue( MainActivity.this );
                                 queue.add( diaryMonthReqeust );
@@ -272,15 +264,7 @@ public class MainActivity extends AppCompatActivity {
                                 JSONObject jsonObject = new JSONObject(response);
                                 JSONArray diariesArray=jsonObject.optJSONArray("diaries");
                                 JSONObject element;
-                            /*
-                            for(int i=0;i<diariesArray.length();i++){
-                                element=(JSONObject) diariesArray.opt(i);
-                                adapter.addItem(new NoteItem(element.optString("_id")
-                                        ,element.optString("diary")
-                                        ,element.optString("created_At")));
-                            }
 
-                             */
                                 ArrayList<NoteItem> items=new ArrayList<NoteItem>();
                                 for(int i=0;i<diariesArray.length();i++){
                                     element=(JSONObject) diariesArray.opt(i);
@@ -318,7 +302,7 @@ public class MainActivity extends AppCompatActivity {
                     else if(monthString.equals("NOVEMBER")){month=11;}
                     else if(monthString.equals("DECEMBER")){month=12;}
 
-                    String url="http://9bb4-182-222-218-49.ngrok.io/diary"+"?year="+year+"&month="+month;
+                    String url="http://0485-182-222-218-49.ngrok.io/diary"+"?year="+year+"&month="+month;
                     DiaryMonthReqeust diaryMonthReqeust = new DiaryMonthReqeust(url,headers,responseListener, errorListener);
                     RequestQueue queue = Volley.newRequestQueue( MainActivity.this );
                     queue.add( diaryMonthReqeust );
@@ -389,7 +373,7 @@ public class MainActivity extends AppCompatActivity {
                                 else if(monthString.equals("NOVEMBER")){month=11;}
                                 else if(monthString.equals("DECEMBER")){month=12;}
 
-                                String url="http://9bb4-182-222-218-49.ngrok.io/diary"+"?year="+year+"&month="+month;
+                                String url="http://0485-182-222-218-49.ngrok.io/diary"+"?year="+year+"&month="+month;
                                 DiaryMonthReqeust diaryMonthReqeust = new DiaryMonthReqeust(url, headers,responseListener, errorListener);
                                 RequestQueue queue = Volley.newRequestQueue( MainActivity.this );
                                 queue.add( diaryMonthReqeust );
@@ -483,15 +467,7 @@ public class MainActivity extends AppCompatActivity {
                             JSONObject jsonObject = new JSONObject(response);
                             JSONArray diariesArray=jsonObject.optJSONArray("diaries");
                             JSONObject element;
-                            /*
-                            for(int i=0;i<diariesArray.length();i++){
-                                element=(JSONObject) diariesArray.opt(i);
-                                adapter.addItem(new NoteItem(element.optString("_id")
-                                        ,element.optString("diary")
-                                        ,element.optString("created_At")));
-                            }
 
-                             */
                             ArrayList<NoteItem> items=new ArrayList<NoteItem>();
                             for(int i=0;i<diariesArray.length();i++){
                                 element=(JSONObject) diariesArray.opt(i);
@@ -529,7 +505,7 @@ public class MainActivity extends AppCompatActivity {
                 else if(monthString.equals("NOVEMBER")){month=11;}
                 else if(monthString.equals("DECEMBER")){month=12;}
 
-                String url="http://9bb4-182-222-218-49.ngrok.io/diary"+"?year="+year+"&month="+month;
+                String url="http://0485-182-222-218-49.ngrok.io/diary"+"?year="+year+"&month="+month;
                 DiaryMonthReqeust diaryMonthReqeust = new DiaryMonthReqeust(url,headers,responseListener, errorListener);
                 RequestQueue queue = Volley.newRequestQueue( MainActivity.this );
                 queue.add( diaryMonthReqeust );
@@ -600,7 +576,7 @@ public class MainActivity extends AppCompatActivity {
                             else if(monthString.equals("NOVEMBER")){month=11;}
                             else if(monthString.equals("DECEMBER")){month=12;}
 
-                            String url="http://9bb4-182-222-218-49.ngrok.io/diary"+"?year="+year+"&month="+month;
+                            String url="http://0485-182-222-218-49.ngrok.io/diary"+"?year="+year+"&month="+month;
                             DiaryMonthReqeust diaryMonthReqeust = new DiaryMonthReqeust(url, headers,responseListener, errorListener);
                             RequestQueue queue = Volley.newRequestQueue( MainActivity.this );
                             queue.add( diaryMonthReqeust );
@@ -630,132 +606,6 @@ public class MainActivity extends AppCompatActivity {
         queue.add( tokenValidateRequest );
 
         recyclerView.setAdapter(adapter) ;
-
-        //일기 길게 클릭했을 때
-        adapter.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-            @Override
-            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-
-                Dialog dialog;
-                dialog=new Dialog(MainActivity.this);
-                dialog.requestWindowFeature(Window.FEATURE_NO_TITLE); // 타이틀 제거
-                dialog.setContentView(R.layout.activity_dialog);             // xml 레이아웃 파일과 연결
-                Button btnCancel=findViewById(R.id.btn_cancel);
-                Button btnConfirm=findViewById(R.id.btn_confirm);
-
-                btnCancel.setOnClickListener(new View.OnClickListener(){
-                    @Override
-                    public void onClick(View view) {
-                        dialog.dismiss();
-                    }
-                });
-
-                btnConfirm.setOnClickListener(new View.OnClickListener(){
-                    @Override
-                    public void onClick(View view) {
-                        NoteItem item=adapter.getItem(position);
-                        String delete_id=item.getId();
-
-                        //헤더에 토큰 넣기
-                        preferences = getSharedPreferences("UserToken", MODE_PRIVATE);
-                        String accessToken=preferences.getString("accessToken","");
-                        String refreshToken=preferences.getString("refreshToken","");
-                        HashMap<String, String> headers = new HashMap<>();
-                        headers.put("access",accessToken);
-                        headers.put("refresh",refreshToken);
-
-                        Response.Listener<String> responseListener= new Response.Listener<String>() {
-                            @Override
-                            public void onResponse(String response) {
-                                //유효하면 access token과 함께 다이어리 수정 요청
-                                Response.Listener<String> responseListener= new Response.Listener<String>() {
-                                    @Override
-                                    public void onResponse(String response) {
-                                        //메인 화면으로 돌아가기
-                                        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-                                        startActivity(intent);
-                                        finish();
-                                    }
-                                };
-                                Response.ErrorListener errorListener = new Response.ErrorListener() {
-                                    @Override
-                                    public void onErrorResponse(VolleyError error) {
-                                    }
-                                };
-                                String url="http://9bb4-182-222-218-49.ngrok.io/diary?id="+delete_id;
-                                DiaryDeleteRequest diaryDeleteRequest = new DiaryDeleteRequest(url, headers,responseListener, errorListener);
-                                RequestQueue queue = Volley.newRequestQueue( MainActivity.this );
-                                queue.add( diaryDeleteRequest );
-                            }
-                        };
-                        Response.ErrorListener errorListener=new Response.ErrorListener() {
-                            @Override
-                            public void onErrorResponse(VolleyError error) {
-                                //access token이 유효하지 않을 때 Reissue
-                                Response.Listener<String> responseListener = new Response.Listener<String>() {
-                                    @Override
-                                    public void onResponse(String response) {
-                                        try {
-                                            JSONObject jsonObject = new JSONObject(response);
-
-                                            //access token 재발급 성공
-                                            String newAccessToken = jsonObject.getString("newAccessToken");
-                                            preferences = getSharedPreferences("UserToken", MODE_PRIVATE);
-                                            SharedPreferences.Editor editor = preferences.edit();
-                                            editor.putString("accessToken", newAccessToken);
-                                            editor.commit();
-
-                                            headers.put("access", newAccessToken);
-
-                                            //유효하면 access token과 함께 다이어리 수정 요청
-                                            Response.Listener<String> responseListener= new Response.Listener<String>() {
-                                                @Override
-                                                public void onResponse(String response) {
-                                                    //메인 화면으로 돌아가기
-                                                    Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-                                                    startActivity(intent);
-                                                    finish();
-                                                }
-                                            };
-                                            Response.ErrorListener errorListener = new Response.ErrorListener() {
-                                                @Override
-                                                public void onErrorResponse(VolleyError error) {
-                                                }
-                                            };
-                                            String url="http://9bb4-182-222-218-49.ngrok.io/diary?id="+delete_id;
-                                            DiaryDeleteRequest diaryDeleteRequest = new DiaryDeleteRequest(url, headers,responseListener, errorListener);
-                                            RequestQueue queue = Volley.newRequestQueue( MainActivity.this );
-                                            queue.add( diaryDeleteRequest );
-                                        } catch (JSONException e) {
-                                            e.printStackTrace();
-                                        }
-                                    }
-                                };
-                                Response.ErrorListener errorListener = new Response.ErrorListener() {
-                                    @Override
-                                    public void onErrorResponse(VolleyError error) {
-                                        //access token 재발급 실패하면 로그인으로 돌아감
-                                        Intent intent2 = new Intent(getApplicationContext(), LoginActivity.class);
-                                        startActivity(intent2);
-                                        finish();
-                                    }
-                                };
-                                //서버로 Volley를 이용해서 요청
-                                TokenReissueRequest tokenReissueRequest = new TokenReissueRequest(headers, responseListener, errorListener);
-                                RequestQueue queue1 = Volley.newRequestQueue(MainActivity.this);
-                                queue1.add(tokenReissueRequest);
-                            }
-                        };
-                        TokenValidateRequest tokenValidateRequest = new TokenValidateRequest(headers,responseListener, errorListener);
-                        RequestQueue queue = Volley.newRequestQueue( MainActivity.this );
-                        queue.add( tokenValidateRequest );
-
-                        dialog.dismiss();
-                    }
-                });
-                return true;
-            }
-        });
 
         //일기 클릭했을 때
         adapter.setOnItemClickListener(new OnNoteItemClickListener() {
@@ -802,7 +652,6 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Intent intent = new Intent( MainActivity.this, DiaryWriteActivity.class );
                 startActivity( intent );
-                //finish();
             }
         });
         //마이페이지 버튼
@@ -811,7 +660,6 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Intent intent = new Intent( MainActivity.this, MypageActivity.class );
                 startActivity( intent );
-                //finish();
             }
         });
     }

@@ -1,12 +1,11 @@
 package org.techtown.meetmeetapplication;
 
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -28,6 +27,7 @@ public class MypageActivity extends AppCompatActivity {
     Button logout_button;
     Button withdraw_button;
     Button nickname_button;
+    ImageButton exit_button;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,13 +49,22 @@ public class MypageActivity extends AppCompatActivity {
         logout_button=findViewById(R.id.logout_button);
         withdraw_button=findViewById(R.id.withdraw_button);
         nickname_button=findViewById(R.id.nickname_button);
+        exit_button=findViewById(R.id.exit_button);
+
+        exit_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //나가면 메인 페이지만 있음
+                finish();
+            }
+        });
 
         nickname_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(MypageActivity.this, NicknameModifyActivity.class);
                 startActivity(intent);
-                finish();
+                //finish 안했기 때문에 닉네임에서 뒤로가기 누르면 메인페이지로 마이페이지로 돌아감
             }
         });
 

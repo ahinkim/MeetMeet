@@ -14,7 +14,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import org.techtown.meetmeetapp.R;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 import static androidx.core.content.ContextCompat.startActivity;
 
@@ -89,7 +91,10 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.ViewHolder> im
             });
         }
         public void setItem(NoteItem item){
-            dateTextView.setText(item.getCreateDateStr());
+            String getDate=item.getCreateDateStr();
+            String date=getDate.substring(0,10);
+            dateTextView.setText(date);
+            //dateTextView.setText(item.getCreateDateStr());
             contentsTextView.setText(item.getContents());
         }
     }

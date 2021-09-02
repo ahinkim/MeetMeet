@@ -32,6 +32,7 @@ public class DiaryModifyActivity extends AppCompatActivity {
     private EditText write_text;
     private SharedPreferences preferences;
     private Button done_button;
+    private Button delete_button;
 
     private TextView year_text;
     private TextView month_text;
@@ -44,6 +45,7 @@ public class DiaryModifyActivity extends AppCompatActivity {
 
         write_text=findViewById(R.id.write_text);
         done_button=findViewById(R.id.done_button);
+        delete_button=findViewById(R.id.delete_button);
 
         year_text=findViewById(R.id.year_text);
         month_text=findViewById(R.id.month_text);
@@ -53,6 +55,8 @@ public class DiaryModifyActivity extends AppCompatActivity {
         String modify_id=intent.getStringExtra("modify_id");
         String modify_contents=intent.getStringExtra("modify_contents");
         String modify_date=intent.getStringExtra("modify_date");
+
+        String url="http://0485-182-222-218-49.ngrok.io/diary?id="+modify_id;
 
         String year=modify_date.substring(0,4);
         String month=modify_date.substring(5,7);
@@ -107,7 +111,6 @@ public class DiaryModifyActivity extends AppCompatActivity {
                             public void onErrorResponse(VolleyError error) {
                             }
                         };
-                        String url="http://9bb4-182-222-218-49.ngrok.io/diary?id="+modify_id;
                         DiaryModifyRequest diaryModifyRequest = new DiaryModifyRequest(url, headers, diary,responseListener, errorListener);
                         RequestQueue queue = Volley.newRequestQueue( DiaryModifyActivity.this );
                         queue.add( diaryModifyRequest );
@@ -147,7 +150,6 @@ public class DiaryModifyActivity extends AppCompatActivity {
                                         public void onErrorResponse(VolleyError error) {
                                         }
                                     };
-                                    String url="http://9bb4-182-222-218-49.ngrok.io/diary?id="+modify_id;
                                     DiaryModifyRequest diaryModifyRequest = new DiaryModifyRequest(url, headers,diary,responseListener, errorListener);
                                     RequestQueue queue = Volley.newRequestQueue( DiaryModifyActivity.this );
                                     queue.add( diaryModifyRequest );
@@ -178,5 +180,104 @@ public class DiaryModifyActivity extends AppCompatActivity {
 
         });
 
+        delete_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String diary = write_text.getText().toString();
+
+                //헤더에 토큰 넣기
+                preferences = getSharedPreferences("UserToken", MODE_PRIVATE);
+                String accessToken=preferences.getString("accessToken","");
+                String refreshToken=preferences.getString("refreshToken","");
+                HashMap<String, String> headers = new HashMap<>();
+                headers.put("access",accessToken);
+                headers.put("refresh",refreshToken);
+
+                Response.Listener<String> responseListener= new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        //유효하면 access token과 함께 다이어리 수정 요청
+                        Response.Listener<String> responseListener= new Response.Listener<String>() {
+                            @Override
+                            public void onResponse(String response) {
+                                //메인 화면으로 돌아가기
+                                Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                                startActivity(intent);
+                                finish();
+                            }
+                        };
+                        Response.ErrorListener errorListener = new Response.ErrorListener() {
+                            @Override
+                            public void onErrorResponse(VolleyError error) {
+                            }
+                        };
+                        DiaryDeleteRequest diaryDeleteRequest = new DiaryDeleteRequest(url, headers,responseListener, errorListener);
+                        RequestQueue queue = Volley.newRequestQueue( DiaryModifyActivity.this );
+                        queue.add( diaryDeleteRequest );
+                    }
+                };
+                Response.ErrorListener errorListener=new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        //access token이 유효하지 않을 때 Reissue
+                        Response.Listener<String> responseListener = new Response.Listener<String>() {
+                            @Override
+                            public void onResponse(String response) {
+                                try {
+                                    JSONObject jsonObject = new JSONObject(response);
+
+                                    //access token 재발급 성공
+                                    String newAccessToken = jsonObject.getString("newAccessToken");
+                                    preferences = getSharedPreferences("UserToken", MODE_PRIVATE);
+                                    SharedPreferences.Editor editor = preferences.edit();
+                                    editor.putString("accessToken", newAccessToken);
+                                    editor.commit();
+
+                                    headers.put("access", newAccessToken);
+
+                                    //유효하면 access token과 함께 다이어리 수정 요청
+                                    Response.Listener<String> responseListener= new Response.Listener<String>() {
+                                        @Override
+                                        public void onResponse(String response) {
+                                            //메인 화면으로 돌아가기
+                                            Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                                            startActivity(intent);
+                                            finish();
+                                        }
+                                    };
+                                    Response.ErrorListener errorListener = new Response.ErrorListener() {
+                                        @Override
+                                        public void onErrorResponse(VolleyError error) {
+                                        }
+                                    };
+                                    DiaryDeleteRequest diaryDeleteRequest = new DiaryDeleteRequest(url, headers,responseListener, errorListener);
+                                    RequestQueue queue = Volley.newRequestQueue( DiaryModifyActivity.this );
+                                    queue.add( diaryDeleteRequest );
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        };
+                        Response.ErrorListener errorListener = new Response.ErrorListener() {
+                            @Override
+                            public void onErrorResponse(VolleyError error) {
+                                //access token 재발급 실패하면 로그인으로 돌아감
+                                Intent intent2 = new Intent(getApplicationContext(), LoginActivity.class);
+                                startActivity(intent2);
+                                finish();
+                            }
+                        };
+                        //서버로 Volley를 이용해서 요청
+                        TokenReissueRequest tokenReissueRequest = new TokenReissueRequest(headers, responseListener, errorListener);
+                        RequestQueue queue1 = Volley.newRequestQueue(DiaryModifyActivity.this);
+                        queue1.add(tokenReissueRequest);
+                    }
+                };
+                TokenValidateRequest tokenValidateRequest = new TokenValidateRequest(headers,responseListener, errorListener);
+                RequestQueue queue = Volley.newRequestQueue( DiaryModifyActivity.this );
+                queue.add( tokenValidateRequest );
+            }
+
+        });
     }
 }

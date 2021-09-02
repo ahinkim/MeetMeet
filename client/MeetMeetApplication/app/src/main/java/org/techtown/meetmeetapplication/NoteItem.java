@@ -1,5 +1,8 @@
 package org.techtown.meetmeetapplication;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 public class NoteItem {
     String _id;//서버 아이디
     String contents;
